@@ -1,4 +1,10 @@
 #!/bin/bash
+if [[ "$EUID" -eq 0 ]]; then
+    echo "This script must NOT be run as root or with sudo."
+    echo "Run it as a normal user: ./install.sh"
+    exit 1
+fi
+
 set -e
 
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
