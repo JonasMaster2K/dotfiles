@@ -162,11 +162,29 @@ if [[ "$PROFILE" == "galaxybook5" ]]; then
 
     if confirm "Install Samsung speaker fix"; then
         sudo pacman -S sof-firmware
-        if [ ! -d "$DOTFILES/repos/samsung-galaxy-book4-linux-fixes" ]; then
-            git clone https://github.com/Andycodeman/samsung-galaxy-book4-linux-fixes \
-                "$DOTFILES/repos/samsung-galaxy-book4-linux-fixes"
+
+        REPO_BASE="$DOTFILES/repos"
+        REPO_DIR="$REPO_BASE/samsung-galaxy-book4-linux-fixes"
+        mkdir -p "$REPO_BASE"
+
+        if [ -L "$REPO_BASE" ]; then
+            echo "ERROR: $REPO_BASE is a symlink. Aborting."
+            exit 1
         fi
-        cd "$DOTFILES/repos/samsung-galaxy-book4-linux-fixes/speaker-fix"
+
+        if [ -d "$REPO_DIR" ]; then
+            echo "Removing existing samsung-galaxy-book4-linux-fixes repo..."
+            rm -rf "$REPO_DIR"
+        fi
+
+        git clone https://github.com/Andycodeman/samsung-galaxy-book4-linux-fixes "$REPO_DIR"
+
+        if [ ! -d "$REPO_DIR/speaker-fix" ]; then
+            echo "ERROR: speaker-fix directory missing after clone."
+            exit 1
+        fi
+
+        cd "$REPO_DIR/speaker-fix"
         sudo ./install.sh
         cd "$DOTFILES"
     fi
