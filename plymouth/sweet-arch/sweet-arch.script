@@ -1,0 +1,31 @@
+fun set_scaled_sprite(sprite, image, zoom) {
+	sprite.SetImage(image.Scale(image.GetWidth() * zoom, image.GetHeight() * zoom));
+}
+
+fun position_sprite(sprite, x, y) {
+	sprite.SetX(Window.GetWidth() * x - sprite.GetImage().GetWidth() / 2);
+	sprite.SetY(Window.GetHeight() * y - sprite.GetImage().GetHeight() / 2);
+}
+
+Window.SetBackgroundTopColor(0.121, 0, 0.227);
+Window.SetBackgroundBottomColor(0.121, 0, 0.227);
+
+LOGO = Image("logo.png");
+LOGO_SPRITE = Sprite(LOGO);
+set_scaled_sprite(LOGO_SPRITE, LOGO, 1.75);
+position_sprite(LOGO_SPRITE, 0.5, 0.45);
+LOGO_SPRITE.SetOpacity(1);
+
+SPINNER = Image("spinner.png");
+SPINNER_SPRITE = Sprite(SPINNER);
+set_scaled_sprite(SPINNER_SPRITE, SPINNER, 1.25);
+position_sprite(SPINNER_SPRITE, 0.5, 0.8);
+SPINNER_SPRITE.SetOpacity(1);
+
+counter = 0;
+fun animate() {
+	++counter;
+	SPINNER_SPRITE.SetImage(SPINNER.Rotate((counter % 100) * 0.06283));
+}
+
+Plymouth.SetRefreshFunction(animate);

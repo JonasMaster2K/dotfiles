@@ -58,31 +58,46 @@ if confirm "Install UI tools (wofi, dunst, clipboard)"; then
     sudo pacman -S --needed wofi dunst wl-clipboard cliphist
 fi
 
-# ── Step 1d: Network & Bluetooth ─────────────────────────
+# ── Step 1d: Splash screen ────────────────────────────────
+if bootctl status &>/dev/null; then
+    if confirm "Install splash screen"; then
+        sudo pacman -S --needed plymouth plymouth-kms
+        if ! grep -q plymouth /etc/mkinitcpio.conf; then
+            sudo sed -i 's/\(HOOKS=.*udev\)/\1 plymouth/' /etc/mkinitcpio.conf
+        fi
+        if ! grep -q "quiet splash" /boot/loader/entries/*.conf; then
+            sudo sed -i '/^options/ s/$/ quiet splash/' /boot/loader/entries/*.conf
+        fi
+        sudo cp -a $DOTFILES/plymouth/sweet-arch /usr/share/plymouth/themes
+        sudo plymouth-set-default-theme -R sweet-arch
+    fi
+fi
+
+# ── Step 1e: Network & Bluetooth ──────────────────────────
 if confirm "Install network & bluetooth"; then
     sudo pacman -S --needed \
         networkmanager network-manager-applet \
         bluez bluez-utils blueman
 fi
 
-# ── Step 1e: Audio ────────────────────────────────────────
+# ── Step 1f: Audio ────────────────────────────────────────
 if confirm "Install audio (pipewire, pavucontrol)"; then
     sudo pacman -S --needed pipewire pipewire-pulse wireplumber pavucontrol
 fi
 
-# ── Step 1f: Fonts ────────────────────────────────────────
+# ── Step 1g: Fonts ────────────────────────────────────────
 if confirm "Install fonts"; then
     sudo pacman -S --needed ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji
 fi
 
-# ── Step 1g: CLI Tools ────────────────────────────────────
+# ── Step 1h: CLI Tools ────────────────────────────────────
 if confirm "Install CLI tools (btop, fzf, ffmpeg, ...)"; then
     sudo pacman -S --needed \
         git base-devel \
         nano btop grim slurp unzip p7zip ffmpeg fzf
 fi
 
-# ── Step 1h: File Manager & Remote ────────────────────────
+# ── Step 1i: File Manager & Remote ────────────────────────
 if confirm "Install file manager & remote tools (dolphin, remmina, ...)"; then
     sudo pacman -S --needed \
         kvantum dolphin ffmpegthumbnailer gvfs ranger \
@@ -123,7 +138,7 @@ fi
 
 # ── Step 6: AUR Packages ─────────────────────────────────
 if confirm "Install AUR packages (zen-browser, vscodium, ags)"; then
-    yay -S --needed zen-browser-bin vscodium-bin aylurs-gtk-shell-git
+    yay -S --needed zen-browser-bin vscodium-bin aylurs-gtk-shell-git libastal-meta
     if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
         yay -S --needed swayosd-git
     fi
@@ -136,6 +151,7 @@ if confirm "Link dotfile configs (~/.config/...)"; then
 
     ln -sf "$DOTFILES/hypr/hyprland.conf"                          ~/.config/hypr/hyprland.conf
     ln -sf "$DOTFILES/kitty/kitty.conf"                            ~/.config/kitty/kitty.conf
+    ln -sf "$DOTFILES/kitty/colors.conf"                           ~/.config/kitty/colors.conf
     ln -sf "$DOTFILES/fish/config.fish"                            ~/.config/fish/config.fish
     ln -sf "$DOTFILES/fish/fish_variables"                         ~/.config/fish/fish_variables
     ln -sf "$DOTFILES/Kvantum"                                     ~/.config/Kvantum
