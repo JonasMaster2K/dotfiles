@@ -7,12 +7,16 @@ fi
 
 set -e
 
+NOCONFIRM=false
+[[ "$1" == "--noconfirm" ]] && NOCONFIRM=true
+
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 
 trap 'echo "==> Error on line $LINENO. Aborting."; exit 1' ERR
 
 # ── Helper ────────────────────────────────────────────────
 confirm() {
+    $NOCONFIRM && echo "==> Step: $1 (auto)" && return 0
     echo ""
     echo "==> Step: $1"
     read -rp "    Continue? [Y/n] " yn
@@ -44,8 +48,9 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 # ── Step 1a: Hyprland / Display ───────────────────────────
 if confirm "Install Hyprland & display packages"; then
     sudo pacman -S --needed \
-        hyprland xdg-desktop-portal-hyprland hypridle hyprpicker hyprpaper hyprsunset \
+        hyprland xdg-desktop-portal-hyprland hypridle hyprlock hyprpicker hyprpaper hyprsunset \
         polkit-kde-agent sddm
+    sudo cp -r $DOTFILES/sddm/Sugar-Candy /usr/share/sddm/themes/
 fi
 
 # ── Step 1b: Shell & Terminal ─────────────────────────────
@@ -54,8 +59,8 @@ if confirm "Install shell & terminal (kitty, fish, starship, eza)"; then
 fi
 
 # ── Step 1c: UI Tools ─────────────────────────────────────
-if confirm "Install UI tools (wofi, dunst, clipboard)"; then
-    sudo pacman -S --needed wofi dunst wl-clipboard cliphist
+if confirm "Install UI tools (wofi, clipboard)"; then
+    sudo pacman -S --needed wofi wl-clipboard cliphist
 fi
 
 # ── Step 1d: Splash screen ────────────────────────────────
@@ -149,13 +154,17 @@ if confirm "Link dotfile configs (~/.config/...)"; then
     mkdir -p ~/.config/hypr ~/.config/kitty ~/.config/Kvantum \
              ~/.config/fish ~/.config/xdg-desktop-portal
 
+    sudo ln -sf "$DOTFILES/sddm/sddm.conf"                         /etc/sddm.conf
     ln -sf "$DOTFILES/hypr/hyprland.conf"                          ~/.config/hypr/hyprland.conf
+    ln -sf "$DOTFILES/hypr/hyprpaper.conf"                         ~/.config/hypr/hyprpaper.conf
+    ln -sf "$DOTFILES/hypr/hypridle.conf"                          ~/.config/hypr/hypridle.conf
+    ln -sf "$DOTFILES/hypr/hyprlock.conf"                          ~/.config/hypr/hyprlock.conf
     ln -sf "$DOTFILES/kitty/kitty.conf"                            ~/.config/kitty/kitty.conf
     ln -sf "$DOTFILES/kitty/colors.conf"                           ~/.config/kitty/colors.conf
     ln -sf "$DOTFILES/fish/config.fish"                            ~/.config/fish/config.fish
     ln -sf "$DOTFILES/fish/fish_variables"                         ~/.config/fish/fish_variables
     ln -sf "$DOTFILES/Kvantum"                                     ~/.config/Kvantum
-    ln -sf "$DOTFILES/xdg-desktop-portal/hyprland-portals.conf"   ~/.config/xdg-desktop-portal/portals.conf
+    ln -sf "$DOTFILES/xdg-desktop-portal/hyprland-portals.conf"    ~/.config/xdg-desktop-portal/portals.conf
     ln -sf "$DOTFILES/dolphinrc"                                   ~/.config/dolphinrc
     [ -f "$DOTFILES/starship.toml" ] && \
         ln -sf "$DOTFILES/starship.toml"                           ~/.config/starship.toml
