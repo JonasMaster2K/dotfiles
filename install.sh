@@ -313,9 +313,10 @@ else
     PARU=true
 fi
 
-if $PARU && confirm "EXTRA — AUR packages (zen-browser, vscodium, spotify, ags, wlogout)"; then
-    paru_install zen-browser-bin vscodium-bin spotify wlogout \
-        aylurs-gtk-shell-git libastal-meta swayosd-git tokyonight-gtk-theme-git
+if $PARU && confirm "EXTRA — AUR packages (zen-browser, vscodium, spotify, ags, wlogout, nordzy-cursors, tokyonight-theme)"; then
+    paru_install zen-browser-bin vscodium-bin spotify \
+        aylurs-gtk-shell-git libastal-meta swayosd-git wlogout \
+        nordzy-cursors tokyonight-gtk-theme-git
 
     if command -v wlogout &>/dev/null; then
         safe_link "$DOTFILES/wlogout/style.css"   ~/.config/wlogout/style.css
