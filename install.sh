@@ -1,30 +1,89 @@
 #!/bin/bash
+# ============================================================
+#  Dotfiles Installer
+#  Usage: ./install.sh [--noconfirm]
+# ============================================================
+
+# ── Guards ────────────────────────────────────────────────
 if [[ "$EUID" -eq 0 ]]; then
-    echo "This script must NOT be run as root or with sudo."
-    echo "Run it as a normal user: ./install.sh"
+    echo "ERROR: Do not run as root or with sudo."
     exit 1
 fi
 
-set -e
+if ! command -v pacman &>/dev/null; then
+    echo "ERROR: This script requires Arch Linux / pacman."
+    exit 1
+fi
 
+set -euo pipefail
+
+# ── Config ────────────────────────────────────────────────
 NOCONFIRM=false
-[[ "$1" == "--noconfirm" ]] && NOCONFIRM=true
+[[ "${1:-}" == "--noconfirm" ]] && NOCONFIRM=true
 
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
+PARU=false
+LOG="$DOTFILES/install.log"
 
-trap 'echo "==> Error on line $LINENO. Aborting."; exit 1' ERR
+# ── Logging ───────────────────────────────────────────────
+exec > >(tee -a "$LOG") 2>&1
+echo "==> Install started: $(date)"
 
-# ── Helper ────────────────────────────────────────────────
+# ── Error trap (initial, before sudo keepalive) ───────────
+trap 'echo ""; echo "ERROR on line $LINENO. Check $LOG for details."; exit 1' ERR
+
+# ── Helpers ───────────────────────────────────────────────
 confirm() {
-    $NOCONFIRM && echo "==> Step: $1 (auto)" && return 0
+    $NOCONFIRM && echo "==> [auto] $1" && return 0
     echo ""
-    echo "==> Step: $1"
+    echo "==> $1"
     read -rp "    Continue? [Y/n] " yn
     [[ "$yn" =~ ^[Nn]$ ]] && echo "    Skipped." && return 1
     return 0
 }
 
-# ── Profil wählen ─────────────────────────────────────────
+pacman_install() {
+    sudo pacman -S --needed --noconfirm "$@"
+}
+
+paru_install() {
+    paru -S --needed --noconfirm "$@"
+}
+
+safe_link() {
+    local src="$1" dst="$2"
+    if [[ ! -e "$src" ]]; then
+        echo "    WARNING: Source not found, skipping: $src"
+        return
+    fi
+    mkdir -p "$(dirname "$dst")"
+    if [[ -e "$dst" && ! -L "$dst" ]]; then
+        mv "$dst" "${dst}.bak"
+        echo "    Backed up: $dst → ${dst}.bak"
+    fi
+    ln -sf "$src" "$dst"
+}
+
+sudo_safe_link() {
+    local src="$1" dst="$2"
+    if [[ ! -e "$src" ]]; then
+        echo "    WARNING: Source not found, skipping: $src"
+        return
+    fi
+    sudo mkdir -p "$(dirname "$dst")"
+    if [[ -e "$dst" && ! -L "$dst" ]]; then
+        sudo mv "$dst" "${dst}.bak"
+        echo "    Backed up: $dst → ${dst}.bak"
+    fi
+    sudo ln -sf "$src" "$dst"
+}
+
+require_file() {
+    [[ -f "$1" ]] || { echo "ERROR: Required file missing: $1"; exit 1; }
+}
+
+# ── Profile selection ─────────────────────────────────────
+echo ""
 echo "Select device profile:"
 echo "  1) PC"
 echo "  2) Laptop (generic)"
@@ -35,7 +94,7 @@ case $choice in
     1) PROFILE="pc" ;;
     2) PROFILE="laptop" ;;
     3) PROFILE="galaxybook5" ;;
-    *) echo "Invalid choice"; exit 1 ;;
+    *) echo "Invalid choice."; exit 1 ;;
 esac
 
 echo "==> Profile: $PROFILE"
@@ -44,182 +103,227 @@ read -rp "Press Enter to start or Ctrl+C to abort..."
 # ── Sudo keepalive ────────────────────────────────────────
 sudo -v
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+SUDO_PID=$!
+trap 'kill $SUDO_PID 2>/dev/null; echo ""; echo "ERROR on line $LINENO. Check $LOG for details."; exit 1' ERR
+trap 'kill $SUDO_PID 2>/dev/null' EXIT
 
-# ── Step 1a: Hyprland / Display ───────────────────────────
-if confirm "Install Hyprland & display packages"; then
-    sudo pacman -S --needed \
-        hyprland xdg-desktop-portal-hyprland hypridle hyprlock hyprpicker hyprpaper hyprsunset \
-        polkit-kde-agent sddm
-    sudo cp -r $DOTFILES/sddm/Sugar-Candy /usr/share/sddm/themes/
+
+# ╔══════════════════════════════════════════════════════════╗
+# ║  CORE — Immer installiert (kein confirm)                ║
+# ╚══════════════════════════════════════════════════════════╝
+
+# ── CORE 1: Hyprland & Display Stack ─────────────────────
+echo ""
+echo "==> [CORE] Hyprland & display stack"
+pacman_install \
+    hyprland xdg-desktop-portal-hyprland \
+    hypridle hyprlock hyprpicker hyprpaper hyprsunset \
+    polkit-gnome sddm jq papirus-icon-theme
+
+require_file "$DOTFILES/sddm/sddm.conf"
+sudo cp -r "$DOTFILES/sddm/Sugar-Candy" /usr/share/sddm/themes/
+
+case $PROFILE in
+    galaxybook5)
+        wallpaper="$DOTFILES/assets/wallpaper_8x5/spaceman_floating_in_space-wallpaper.jpg" ;;
+    pc)
+        wallpaper="$DOTFILES/assets/wallpaper_21x9/spaceman_floating_in_space-wallpaper.jpg" ;;
+    *)
+        wallpaper="" ;;
+esac
+[[ -n "$wallpaper" && -f "$wallpaper" ]] && \
+    sudo cp "$wallpaper" /usr/share/sddm/themes/Sugar-Candy/Backgrounds/
+
+
+# ── CORE 2: Audio ────────────────────────────────────────
+echo ""
+echo "==> [CORE] Audio (pipewire, pavucontrol)"
+pacman_install pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber pavucontrol
+
+
+# ── CORE 3: Network & Bluetooth ──────────────────────────
+echo ""
+echo "==> [CORE] Network & Bluetooth"
+pacman_install \
+    networkmanager network-manager-applet \
+    bluez bluez-utils blueman
+
+
+# ── CORE 4: Laptop-specific (immer, wenn Laptop-Profil) ──
+if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
+    echo ""
+    echo "==> [CORE] Laptop packages (brightness, power, ACPI)"
+    pacman_install \
+        brightnessctl acpid dkms linux-headers i2c-tools power-profiles-daemon
+    sudo systemctl enable --now acpid
+    sudo systemctl enable --now power-profiles-daemon
+
+    if [[ "$PROFILE" == "galaxybook5" ]]; then
+        echo ""
+        echo "==> [CORE] Samsung ACPI keyboard backlight"
+        require_file "$DOTFILES/acpi/samsung-kbd-backlight.sh"
+        require_file "$DOTFILES/acpi/events/samsung-kbd-backlight"
+        sudo install -m 755 "$DOTFILES/acpi/samsung-kbd-backlight.sh" /etc/acpi/samsung-kbd-backlight.sh
+        sudo cp "$DOTFILES/acpi/events/samsung-kbd-backlight" /etc/acpi/events/samsung-kbd-backlight
+        sudo systemctl restart acpid
+
+        echo ""
+        echo "==> [CORE] Battery charge threshold (80%)"
+        require_file "$DOTFILES/udev/99-samsung-galaxybook.rules"
+        sudo cp "$DOTFILES/udev/99-samsung-galaxybook.rules" /etc/udev/rules.d/
+        sudo udevadm control --reload-rules
+    fi
 fi
 
-# ── Step 1b: Shell & Terminal ─────────────────────────────
-if confirm "Install shell & terminal (kitty, fish, starship, eza)"; then
-    sudo pacman -S --needed kitty fish eza starship
+
+# ── CORE 5: System Services ───────────────────────────────
+echo ""
+echo "==> [CORE] Enable system services (NetworkManager, Bluetooth, SDDM)"
+sudo systemctl enable --now NetworkManager
+sudo systemctl enable --now bluetooth
+sudo systemctl enable sddm
+
+if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
+    echo ""
+    echo "==> [CORE] Power button → hibernate"
+    require_file "$DOTFILES/logind/power.conf"
+    sudo_safe_link "$DOTFILES/logind/power.conf" /etc/systemd/logind.conf.d/power.conf
 fi
 
-# ── Step 1c: UI Tools ─────────────────────────────────────
-if confirm "Install UI tools (wofi, clipboard)"; then
-    sudo pacman -S --needed wofi wl-clipboard cliphist
+
+# ── CORE 6: Dotfile Links ─────────────────────────────────
+echo ""
+echo "==> [CORE] Link dotfile configs"
+if command -v xdg-user-dirs-update &>/dev/null; then
+    xdg-user-dirs-update
+else
+    mkdir -p ~/Pictures/Screenshots ~/Documents ~/Videos ~/Dev
 fi
 
-# ── Step 1d: Splash screen ────────────────────────────────
+sudo_safe_link "$DOTFILES/sddm/sddm.conf" /etc/sddm.conf
+
+safe_link "$DOTFILES/hypr/hyprland.conf"                       ~/.config/hypr/hyprland.conf
+safe_link "$DOTFILES/hypr/hyprpaper.conf"                      ~/.config/hypr/hyprpaper.conf
+safe_link "$DOTFILES/hypr/hypridle.conf"                       ~/.config/hypr/hypridle.conf
+safe_link "$DOTFILES/hypr/hyprlock.conf"                       ~/.config/hypr/hyprlock.conf
+safe_link "$DOTFILES/xdg-desktop-portal/hyprland-portals.conf" ~/.config/xdg-desktop-portal/portals.conf
+
+
+# ╔══════════════════════════════════════════════════════════╗
+# ║  EXTRAS — Mit confirm                                   ║
+# ╚══════════════════════════════════════════════════════════╝
+
+# ── Splash screen (nur mit systemd-boot) ─────────────────
 if bootctl status &>/dev/null; then
-    if confirm "Install splash screen"; then
-        sudo pacman -S --needed plymouth plymouth-kms
-        if ! grep -q plymouth /etc/mkinitcpio.conf; then
+    if confirm "EXTRA — Plymouth splash screen"; then
+        pacman_install plymouth
+        grep -q "plymouth" /etc/mkinitcpio.conf || \
             sudo sed -i 's/\(HOOKS=.*udev\)/\1 plymouth/' /etc/mkinitcpio.conf
-        fi
-        if ! grep -q "quiet splash" /boot/loader/entries/*.conf; then
-            sudo sed -i '/^options/ s/$/ quiet splash/' /boot/loader/entries/*.conf
-        fi
-        sudo cp -a $DOTFILES/plymouth/sweet-arch /usr/share/plymouth/themes
+        for entry in /boot/loader/entries/*.conf; do
+            grep -q "quiet splash" "$entry" || \
+                sudo sed -i '/^options/ s/$/ quiet splash/' "$entry"
+        done
+        require_file "$DOTFILES/plymouth/sweet-arch/sweet-arch.plymouth"
+        sudo cp -a "$DOTFILES/plymouth/sweet-arch" /usr/share/plymouth/themes/
         sudo plymouth-set-default-theme -R sweet-arch
     fi
 fi
 
-# ── Step 1e: Network & Bluetooth ──────────────────────────
-if confirm "Install network & bluetooth"; then
-    sudo pacman -S --needed \
-        networkmanager network-manager-applet \
-        bluez bluez-utils blueman
-fi
 
-# ── Step 1f: Audio ────────────────────────────────────────
-if confirm "Install audio (pipewire, pavucontrol)"; then
-    sudo pacman -S --needed pipewire pipewire-pulse wireplumber pavucontrol
-fi
+# ── Shell & Terminal ──────────────────────────────────────
+if confirm "EXTRA — Shell & terminal (kitty, fish, starship, eza, fastfetch)"; then
+    pacman_install kitty fish eza starship fastfetch
 
-# ── Step 1g: Fonts ────────────────────────────────────────
-if confirm "Install fonts"; then
-    sudo pacman -S --needed ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji
-fi
+    safe_link "$DOTFILES/kitty/kitty.conf"   ~/.config/kitty/kitty.conf
+    safe_link "$DOTFILES/kitty/colors.conf"  ~/.config/kitty/colors.conf
+    safe_link "$DOTFILES/fish/config.fish"   ~/.config/fish/config.fish
+    safe_link "$DOTFILES/fish/fish_variables" ~/.config/fish/fish_variables
+    [[ -f "$DOTFILES/starship.toml" ]] && \
+        safe_link "$DOTFILES/starship.toml"  ~/.config/starship.toml
 
-# ── Step 1h: CLI Tools ────────────────────────────────────
-if confirm "Install CLI tools (btop, fzf, ffmpeg, ...)"; then
-    sudo pacman -S --needed \
-        git base-devel \
-        nano btop grim slurp unzip p7zip ffmpeg fzf
-fi
-
-# ── Step 1i: File Manager & Remote ────────────────────────
-if confirm "Install file manager & remote tools (dolphin, remmina, ...)"; then
-    sudo pacman -S --needed \
-        kvantum dolphin ffmpegthumbnailer gvfs ranger \
-        remmina freerdp openssh
-fi
-
-# ── Step 2: Laptop Packages ───────────────────────────────
-if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
-    if confirm "Install laptop packages (brightnessctl, acpid, power-profiles-daemon, ...)"; then
-        sudo pacman -S --needed \
-            brightnessctl acpid dkms linux-headers i2c-tools power-profiles-daemon
-        sudo systemctl enable --now acpid
-        sudo systemctl enable --now power-profiles-daemon
+    if confirm "EXTRA — Set fish as default shell"; then
+        if command -v fish &>/dev/null; then
+            chsh -s "$(command -v fish)"
+        else
+            echo "    WARNING: fish not found, skipping chsh."
+        fi
     fi
 fi
 
-# ── Step 3: Services ──────────────────────────────────────
-if confirm "Enable system services (NetworkManager, Bluetooth, SDDM)"; then
-    sudo systemctl enable --now NetworkManager
-    sudo systemctl enable --now bluetooth
-    sudo systemctl enable sddm
+
+# ── UI & Wayland Tools ────────────────────────────────────
+if confirm "EXTRA — UI & Wayland tools (wofi, clipboard, grim, slurp)"; then
+    pacman_install wofi wl-clipboard cliphist pacman-contrib grim slurp
 fi
 
-# ── Step 4: Default Shell ─────────────────────────────────
-if confirm "Set fish as default shell"; then
-    chsh -s /usr/bin/fish
+
+# ── Fonts ─────────────────────────────────────────────────
+if confirm "EXTRA — Fonts (JetBrains Nerd, Noto)"; then
+    pacman_install ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji
 fi
 
-# ── Step 5: AUR Helper ────────────────────────────────────
-if ! command -v yay &>/dev/null; then
-    if confirm "Install yay (AUR helper)"; then
-        git clone https://aur.archlinux.org/yay.git /tmp/yay
-        cd /tmp/yay && makepkg -si && cd "$DOTFILES"
+
+# ── File Manager & CLI Tools ──────────────────────────────
+if confirm "EXTRA — File manager & CLI tools (thunar, ranger, btop, fzf …)"; then
+    pacman_install \
+        thunar thunar-archive-plugin thunar-media-tags-plugin tumbler \
+        ffmpegthumbnailer gvfs \
+        ranger \
+        git base-devel nano btop unzip fzf \
+        xdg-user-dirs
+
+    if confirm "EXTRA — Remote desktop tools (remmina, freerdp, openssh)"; then
+        pacman_install remmina freerdp openssh
+    fi
+fi
+
+# TODO: Obsidian(Notizen), Thunderbird(EMail), Localsend(Airdrop), Timeshift(Backup), Resources(Taskmanager), Dev Toolbox, ClamAV/Tk(Antivirus), Portmaster
+
+# ── Samsung Galaxy Book5 Extras ───────────────────────────
+if [[ "$PROFILE" == "galaxybook5" ]]; then
+    if confirm "EXTRA — Samsung speaker fix"; then
+        pacman_install sof-firmware
+        REPO_DIR="/tmp/samsung-galaxy-book4-linux-fixes"
+        [[ -d "$REPO_DIR" ]] && rm -rf "$REPO_DIR"
+        git clone https://github.com/Andycodeman/samsung-galaxy-book4-linux-fixes "$REPO_DIR"
+        [[ -d "$REPO_DIR/speaker-fix" ]] || { echo "ERROR: speaker-fix missing."; exit 1; }
+        cd "$REPO_DIR/speaker-fix" && sudo ./install.sh && cd "$DOTFILES"
+    fi
+
+    if confirm "EXTRA — EasyEffects + presets"; then
+        pacman_install easyeffects calf lsp-plugins
+        bash -c "$(curl -fsSL https://raw.githubusercontent.com/JackHack96/EasyEffects-Presets/master/install.sh)"
+        echo "==> Open EasyEffects to select a preset."
+    fi
+fi
+
+
+# ── AUR ───────────────────────────────────────────────────
+if ! command -v paru &>/dev/null; then
+    if confirm "EXTRA — Install paru (AUR helper)"; then
+        pacman_install rust
+        [[ -d /tmp/paru ]] && rm -rf /tmp/paru
+        git clone https://aur.archlinux.org/paru.git /tmp/paru
+        cd /tmp/paru && makepkg -si && cd "$DOTFILES"
+        PARU=true
     fi
 else
-    echo "==> yay already installed, skipping."
+    echo "==> paru already installed."
+    PARU=true
 fi
 
-# ── Step 6: AUR Packages ─────────────────────────────────
-if confirm "Install AUR packages (zen-browser, vscodium, ags)"; then
-    yay -S --needed zen-browser-bin vscodium-bin aylurs-gtk-shell-git libastal-meta
-    if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
-        yay -S --needed swayosd-git
-    fi
-fi
+if $PARU && confirm "EXTRA — AUR packages (zen-browser, vscodium, spotify, ags, wlogout)"; then
+    paru_install zen-browser-bin vscodium-bin spotify wlogout \
+        aylurs-gtk-shell-git libastal-meta swayosd-git tokyonight-gtk-theme-git
 
-# ── Step 7: Link Configs ──────────────────────────────────
-if confirm "Link dotfile configs (~/.config/...)"; then
-    mkdir -p ~/.config/hypr ~/.config/kitty ~/.config/Kvantum \
-             ~/.config/fish ~/.config/xdg-desktop-portal
-
-    sudo ln -sf "$DOTFILES/sddm/sddm.conf"                         /etc/sddm.conf
-    ln -sf "$DOTFILES/hypr/hyprland.conf"                          ~/.config/hypr/hyprland.conf
-    ln -sf "$DOTFILES/hypr/hyprpaper.conf"                         ~/.config/hypr/hyprpaper.conf
-    ln -sf "$DOTFILES/hypr/hypridle.conf"                          ~/.config/hypr/hypridle.conf
-    ln -sf "$DOTFILES/hypr/hyprlock.conf"                          ~/.config/hypr/hyprlock.conf
-    ln -sf "$DOTFILES/kitty/kitty.conf"                            ~/.config/kitty/kitty.conf
-    ln -sf "$DOTFILES/kitty/colors.conf"                           ~/.config/kitty/colors.conf
-    ln -sf "$DOTFILES/fish/config.fish"                            ~/.config/fish/config.fish
-    ln -sf "$DOTFILES/fish/fish_variables"                         ~/.config/fish/fish_variables
-    ln -sf "$DOTFILES/Kvantum"                                     ~/.config/Kvantum
-    ln -sf "$DOTFILES/xdg-desktop-portal/hyprland-portals.conf"    ~/.config/xdg-desktop-portal/portals.conf
-    ln -sf "$DOTFILES/dolphinrc"                                   ~/.config/dolphinrc
-    [ -f "$DOTFILES/starship.toml" ] && \
-        ln -sf "$DOTFILES/starship.toml"                           ~/.config/starship.toml
-fi
-
-# ── Step 8: Samsung Galaxy Book5 ─────────────────────────
-if [[ "$PROFILE" == "galaxybook5" ]]; then
-
-    if confirm "Install Samsung ACPI keyboard backlight"; then
-        sudo cp "$DOTFILES/acpi/samsung-kbd-backlight.sh" /etc/acpi/samsung-kbd-backlight.sh
-        sudo chmod +x /etc/acpi/samsung-kbd-backlight.sh
-        sudo cp "$DOTFILES/acpi/events/samsung-kbd-backlight" /etc/acpi/events/samsung-kbd-backlight
-        sudo systemctl restart acpid
-    fi
-
-    if confirm "Install udev rules (battery threshold 80%)"; then
-        sudo cp "$DOTFILES/udev/99-samsung-galaxybook.rules" /etc/udev/rules.d/99-samsung-galaxybook.rules
-        sudo udevadm control --reload-rules
-    fi
-
-    if confirm "Install Samsung speaker fix"; then
-        sudo pacman -S sof-firmware
-
-        REPO_BASE="$DOTFILES/repos"
-        REPO_DIR="$REPO_BASE/samsung-galaxy-book4-linux-fixes"
-        mkdir -p "$REPO_BASE"
-
-        if [ -L "$REPO_BASE" ]; then
-            echo "ERROR: $REPO_BASE is a symlink. Aborting."
-            exit 1
-        fi
-
-        if [ -d "$REPO_DIR" ]; then
-            echo "Removing existing samsung-galaxy-book4-linux-fixes repo..."
-            rm -rf "$REPO_DIR"
-        fi
-
-        git clone https://github.com/Andycodeman/samsung-galaxy-book4-linux-fixes "$REPO_DIR"
-
-        if [ ! -d "$REPO_DIR/speaker-fix" ]; then
-            echo "ERROR: speaker-fix directory missing after clone."
-            exit 1
-        fi
-
-        cd "$REPO_DIR/speaker-fix"
-        sudo ./install.sh
-        cd "$DOTFILES"
-    fi
-
-    if confirm "Install EasyEffects + presets"; then
-        sudo pacman -S --needed easyeffects calf
-        bash -c "$(curl -fsSL https://raw.githubusercontent.com/JackHack96/EasyEffects-Presets/master/install.sh)"
-        echo "==> To change audio presets open EasyEffects and choose a preset."
+    if command -v wlogout &>/dev/null; then
+        safe_link "$DOTFILES/wlogout/style.css"   ~/.config/wlogout/style.css
     fi
 fi
 
+
+# ── Done ──────────────────────────────────────────────────
 echo ""
-echo "==> Done! Reboot to apply all changes."
+echo "==> Install finished: $(date)"
+echo "==> Log saved to: $LOG"
+echo "==> Reboot to apply all changes."
