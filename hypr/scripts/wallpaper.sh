@@ -9,6 +9,8 @@ gcd() {
 
 tmpfile=$(mktemp)
 
+mkdir -p $HOME/dotfiles/.cache/
+
 hyprctl monitors -j | jq -r '.[] | "\(.name) \(.width) \(.height)"' | while read name w h; do
     gcd_val=$(gcd $w $h)
     ratio="$((w/gcd_val))x$((h/gcd_val))"
@@ -21,7 +23,12 @@ done
 
 sleep 0.3
 
+first=true
 while read name full_path; do
+    if $first; then
+        ln -sf "$full_path" "$HOME/dotfiles/.cache/current_wallpaper"
+        first=false
+    fi
     hyprctl hyprpaper wallpaper "$name,$full_path"
 done < "$tmpfile"
 
