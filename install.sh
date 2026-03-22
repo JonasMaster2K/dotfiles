@@ -206,6 +206,7 @@ safe_link "$DOTFILES/hypr/hyprland.conf"                       ~/.config/hypr/hy
 safe_link "$DOTFILES/hypr/hyprpaper.conf"                      ~/.config/hypr/hyprpaper.conf
 safe_link "$DOTFILES/hypr/hypridle.conf"                       ~/.config/hypr/hypridle.conf
 safe_link "$DOTFILES/hypr/hyprlock.conf"                       ~/.config/hypr/hyprlock.conf
+safe_link "$DOTFILES/hypr/hyprsunset.conf"                     ~/.config/hypr/hyprsunset.conf
 safe_link "$DOTFILES/xdg-desktop-portal/hyprland-portals.conf" ~/.config/xdg-desktop-portal/portals.conf
 
 
