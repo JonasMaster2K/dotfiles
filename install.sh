@@ -270,12 +270,29 @@ if confirm "EXTRA — File manager & CLI tools (thunar, ranger, btop, fzf …)";
         thunar thunar-archive-plugin thunar-media-tags-plugin tumbler \
         ffmpegthumbnailer gvfs \
         ranger \
-        git base-devel nano btop unzip fzf \
+        nano btop unzip fzf \
         xdg-user-dirs
 
     if confirm "EXTRA — Remote desktop tools (remmina, freerdp, openssh)"; then
         pacman_install remmina freerdp openssh
     fi
+fi
+
+
+# ── Dev Tools ─────────────────────────────────────────────
+if confirm "EXTRA — Dev tools"; then
+    pacman_install cmake ninja meson
+
+    confirm "DEV — C/C++ (gcc, clang, clangd, gdb)" && pacman_install gcc clang gdb
+    confirm "DEV — Rust (rustc, cargo)" && pacman_install rust
+    confirm "DEV — Java (jdk21-openjdk)" && pacman_install jdk21-openjdk
+    confirm "DEV — Kotlin" && pacman_install kotlin
+    confirm "DEV — Go" && pacman_install go
+    confirm "DEV — Node.js / TypeScript" && pacman_install nodejs npm && npm install -g typescript
+    confirm "DEV — Python" && pacman_install python python-pip
+    confirm "DEV — PHP" && pacman_install php
+    confirm "DEV — Lua" && pacman_install lua
+    confirm "DEV — Zig" && pacman_install zig
 fi
 
 # TODO: Obsidian(Notizen), Thunderbird(EMail), Localsend(Airdrop), Timeshift(Backup), Resources(Taskmanager), Dev Toolbox, ClamAV/Tk(Antivirus), Portmaster
