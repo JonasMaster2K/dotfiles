@@ -281,7 +281,7 @@ fi
 
 # ── Dev Tools ─────────────────────────────────────────────
 if confirm "EXTRA — Dev tools"; then
-    pacman_install cmake ninja meson
+    pacman_install git cmake ninja meson
 
     confirm "DEV — C/C++ (gcc, clang, clangd, gdb)" && pacman_install gcc clang gdb
     confirm "DEV — Rust (rustc, cargo)" && pacman_install rust
@@ -295,7 +295,14 @@ if confirm "EXTRA — Dev tools"; then
     confirm "DEV — Zig" && pacman_install zig
 fi
 
-# TODO: Obsidian(Notizen), Thunderbird(EMail), Localsend(Airdrop), Timeshift(Backup), Resources(Taskmanager), Dev Toolbox, ClamAV/Tk(Antivirus), Portmaster
+if confirm "EXTRA — tools"; then
+    confirm "Obsidian" && pacman_install obsidian
+    confirm "Email" && pacman_install thunderbird
+    confirm "Backup" && pacman_install timeshift
+    confirm "Antivirus" && pacman_install clamtk
+    confirm "Airdrop" && paru_install localsend-bin
+    confirm "Firewall" && paru_install portmaster-bin
+fi
 
 # ── Samsung Galaxy Book5 Extras ───────────────────────────
 if [[ "$PROFILE" == "galaxybook5" ]]; then
@@ -319,7 +326,7 @@ fi
 # ── AUR ───────────────────────────────────────────────────
 if ! command -v paru &>/dev/null; then
     if confirm "EXTRA — Install paru (AUR helper)"; then
-        pacman_install rust
+        pacman_install rust base-devel
         [[ -d /tmp/paru ]] && rm -rf /tmp/paru
         git clone https://aur.archlinux.org/paru.git /tmp/paru
         cd /tmp/paru && makepkg -si && cd "$DOTFILES"
