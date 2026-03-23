@@ -237,6 +237,8 @@ if confirm "EXTRA — Shell & terminal (kitty, fish, starship, eza, fastfetch)";
 
     safe_link "$DOTFILES/kitty/kitty.conf"   ~/.config/kitty/kitty.conf
     safe_link "$DOTFILES/kitty/colors.conf"  ~/.config/kitty/colors.conf
+    safe_link "$DOTFILES/kitty/search.py"      ~/.config/kitty/search.py
+    safe_link "$DOTFILES/kitty/scroll_mark.py" ~/.config/kitty/scroll_mark.py
     safe_link "$DOTFILES/fish/config.fish"   ~/.config/fish/config.fish
     safe_link "$DOTFILES/fish/fish_variables" ~/.config/fish/fish_variables
     [[ -f "$DOTFILES/starship.toml" ]] && \
