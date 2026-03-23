@@ -350,6 +350,26 @@ if $PARU && confirm "EXTRA — AUR packages (zen-browser, vscodium, spotify, ags
     fi
 fi
 
+# ── GTK Theme, Icons, Cursor ──────────────────────────────
+if confirm "EXTRA — Apply GTK theme, icons & cursor"; then
+    mkdir -p ~/.config/gtk-3.0
+    cat > ~/.config/gtk-3.0/settings.ini << 'INI'
+    [Settings]
+    gtk-theme-name=Tokyonight-Dark
+    gtk-icon-theme-name=Papirus-Dark
+    gtk-cursor-theme-name=Nordzy-cursors
+    gtk-cursor-theme-size=24
+    gtk-font-name=JetBrainsMono Nerd Font 11
+INI
+
+    # gsettings (wirkt sofort in laufender Session)
+    gsettings set org.gnome.desktop.interface gtk-theme        "Tokyonight-Dark"
+    gsettings set org.gnome.desktop.interface icon-theme       "Papirus-Dark"
+    gsettings set org.gnome.desktop.interface cursor-theme     "Nordzy-cursors"
+    gsettings set org.gnome.desktop.interface cursor-size      24
+    gsettings set org.gnome.desktop.interface font-name        "JetBrainsMono Nerd Font 11"
+fi
+
 
 # ── Done ──────────────────────────────────────────────────
 echo ""
