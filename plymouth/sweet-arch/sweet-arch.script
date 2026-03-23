@@ -7,16 +7,16 @@ fun position_sprite(sprite, x, y) {
 	sprite.SetY(Window.GetHeight() * y - sprite.GetImage().GetHeight() / 2);
 }
 
-Window.SetBackgroundTopColor(0.121, 0, 0.227);
-Window.SetBackgroundBottomColor(0.121, 0, 0.227);
+Window.SetBackgroundTopColor(0.180, 0.204, 0.251);   // nord0
+Window.SetBackgroundBottomColor(0.231, 0.259, 0.322); // nord1
 
-LOGO = Image("logo.png");
+LOGO = Image("logo_2.png");
 LOGO_SPRITE = Sprite(LOGO);
 set_scaled_sprite(LOGO_SPRITE, LOGO, 1.75);
 position_sprite(LOGO_SPRITE, 0.5, 0.45);
 LOGO_SPRITE.SetOpacity(1);
 
-SPINNER = Image("spinner.png");
+SPINNER = Image("spinner_2.png");
 SPINNER_SPRITE = Sprite(SPINNER);
 set_scaled_sprite(SPINNER_SPRITE, SPINNER, 1.25);
 position_sprite(SPINNER_SPRITE, 0.5, 0.8);

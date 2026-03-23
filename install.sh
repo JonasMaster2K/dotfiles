@@ -255,12 +255,15 @@ fi
 # ── UI & Wayland Tools ────────────────────────────────────
 if confirm "EXTRA — UI & Wayland tools (wofi, clipboard, grim, slurp)"; then
     pacman_install wofi wl-clipboard cliphist pacman-contrib grim slurp
+
+    safe_link "$DOTFILES/wofi/config" ~/.config/wofi/config
+    safe_link "$DOTFILES/wofi/style.css" ~/.config/wofi/style.css
 fi
 
 
 # ── Fonts ─────────────────────────────────────────────────
 if confirm "EXTRA — Fonts (JetBrains Nerd, Noto)"; then
-    pacman_install ttf-jetbrains-mono-nerd noto-fonts noto-fonts-emoji
+    pacman_install ttf-jetbrains-mono-nerd noto-fonts-emoji
 fi
 
 
@@ -280,7 +283,7 @@ fi
 
 
 # ── Dev Tools ─────────────────────────────────────────────
-if confirm "EXTRA — Dev tools"; then
+if confirm "EXTRA — Programming languages"; then
     pacman_install git cmake ninja meson
 
     confirm "DEV — C/C++ (gcc, clang, clangd, gdb)" && pacman_install gcc clang gdb
@@ -295,7 +298,7 @@ if confirm "EXTRA — Dev tools"; then
     confirm "DEV — Zig" && pacman_install zig
 fi
 
-if confirm "EXTRA — tools"; then
+if confirm "EXTRA — Tools"; then
     confirm "Obsidian" && pacman_install obsidian
     confirm "Email" && pacman_install thunderbird
     confirm "Backup" && pacman_install timeshift

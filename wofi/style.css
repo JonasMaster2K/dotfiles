@@ -1,76 +1,68 @@
 /* ══════════════════════════════
-   Wofi — Ayu Dark
+   Wofi — Nordic Blue
    ~/.config/wofi/style.css
 ══════════════════════════════ */
-
 * {
-    font-family: 'Syne', sans-serif;
-    font-size:   13px;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  box-shadow: none;
 }
 
-/* ── Window ── */
 window {
-    background-color: #1a1f29;
-    border:           1px solid #343f4c;
-    border-radius:    12px;
+  background-color: #1e2430;
+  border:           1px solid #2d3850;
+  border-radius:    12px;
 }
 
-/* ── Outer box ── */
 #outer-box {
-    padding: 8px;
-    spacing: 8px;
+  padding: 8px;
+  spacing: 8px;
 }
 
-/* ── Search / Inputbar ── */
 #input {
-    background-color: #212733;
-    color:            #d9d7ce;
-    border:           1px solid #343f4c;
-    border-radius:    8px;
-    padding:          8px 14px;
-    margin:           0;
-    caret-color:      #73d0ff;
+  background-color: #242d3d;
+  color:            #d8e0ed;
+  border:           1px solid #2d3850;
+  border-radius:    8px;
+  padding:          8px 14px;
+  caret-color:      #88c0d0;
 }
 
 #input:focus {
-    border-color: #73d0ff;
-    outline:      none;
+  border-color: #88c0d0;
+  outline:      none;
 }
 
-/* ── Scrollable list ── */
 #scroll {
-    margin: 0;
+  margin: 0;
 }
 
 #inner-box {
-    spacing: 2px;
+  spacing: 2px;
 }
 
-/* ── Entry ── */
 #entry {
-    background-color: transparent;
-    border-radius:    8px;
-    padding:          8px 12px;
-    color:            #c7c7c7;
+  background-color: transparent;
+  border-radius:    8px;
+  padding:          8px 12px;
+  color:            #a8b8d0;
 }
 
 #entry:selected {
-    background-color: #1a3a50;
-    color:            #73d0ff;
-    border:           1px solid #73d0ff;
+  background-color: #1e3d50;
+  color:            #88c0d0;
+  border:           1px solid #1a3040;
 }
 
-/* ── App icon ── */
 #img {
-    margin-right: 8px;
+  margin-right: 8px;
 }
 
-/* ── App label ── */
 #text {
-    color: inherit;
+  color: inherit;
 }
 
 #text:selected {
-    color: #73d0ff;
-    font-weight: bold;
+  color:       #88c0d0;
+  font-weight: bold;
 }
