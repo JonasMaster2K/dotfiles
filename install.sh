@@ -346,7 +346,7 @@ if $PARU && confirm "EXTRA — AUR packages (zen-browser, vscodium, spotify, ags
         nordzy-cursors tokyonight-gtk-theme-git
 
     if command -v wlogout &>/dev/null; then
-        safe_link "$DOTFILES/wlogout/style.css"   ~/.config/wlogout/style.css
+        safe_link "$DOTFILES/wlogout/layout"   ~/.config/wlogout/layout
     fi
 fi
 
