@@ -1,4 +1,7 @@
 #!/bin/bash
+hyprpaper &
+sleep 0.5
+
 gcd() {
     local a=$1 b=$2
     while [ $b -ne 0 ]; do
