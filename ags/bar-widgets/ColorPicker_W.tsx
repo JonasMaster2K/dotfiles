@@ -1,14 +1,10 @@
 import { Gtk } from "ags/gtk4"
 import GLib from "gi://GLib"
 import Gdk from "gi://Gdk?version=4.0"
+import TaskBarIconButton from "../components/TaskBarIconButton"
 
 export default function ColorPickerWidget(): Gtk.Widget {
-    const btn = new Gtk.Button({
-        css_classes: ["statusbar-widget"],
-        valign: Gtk.Align.CENTER,
-        tooltip_text: "Pick color",
-    })
-    btn.set_child(new Gtk.Image({ icon_name: "color-select-symbolic", pixel_size: 16 }))
+    const btn = new TaskBarIconButton("color-select-symbolic")
 
     // FUNCTIONALITY ==========================================
     btn.connect("clicked", () => {

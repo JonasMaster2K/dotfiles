@@ -45,9 +45,6 @@ button:active {
 #lock {
     background-image: image(url("./icons/lock.png"), url("/usr/share/wlogout/icons/lock.png"), url("/usr/local/share/wlogout/icons/lock.png"));
 }
-#logout {
-    background-image: image(url("./icons/logout.png"), url("/usr/share/wlogout/icons/logout.png"), url("/usr/local/share/wlogout/icons/logout.png"));
-}
 #suspend {
     background-image: image(url("./icons/suspend.png"), url("/usr/share/wlogout/icons/suspend.png"), url("/usr/local/share/wlogout/icons/suspend.png"));
 }

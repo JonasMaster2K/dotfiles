@@ -1,18 +1,9 @@
 import { Gtk } from "ags/gtk4"
 import GLib from "gi://GLib"
+import TaskBarIconButton from "../components/TaskBarIconButton"
 
 export default function ScreenshotWidget(): Gtk.Widget {
-    const icon = new Gtk.Image({
-        icon_name: "accessories-screenshot-symbolic",
-        pixel_size: 16,
-    })
-
-    const btn = new Gtk.Button({
-        css_classes: ["statusbar-widget"],
-        valign: Gtk.Align.CENTER,
-        tooltip_text: "Screenshot",
-    })
-    btn.set_child(icon)
+    const btn = new TaskBarIconButton("accessories-screenshot-symbolic")
 
     // FUNCTIONALITY ==========================================
     btn.connect("clicked", () => {
@@ -29,10 +20,10 @@ export default function ScreenshotWidget(): Gtk.Widget {
         GLib.child_watch_add(GLib.PRIORITY_DEFAULT, pid!, (_: any, status: number) => {
             btn.sensitive = true
             if (status === 0) {
-                icon.icon_name   = "emblem-ok-symbolic"
+                btn.icon.icon_name   = "emblem-ok-symbolic"
                 btn.tooltip_text = `Saved: ${path}`
                 GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, () => {
-                    icon.icon_name   = "accessories-screenshot-symbolic"
+                    btn.icon.icon_name   = "accessories-screenshot-symbolic"
                     btn.tooltip_text = "Screenshot"
                     return GLib.SOURCE_REMOVE
                 })

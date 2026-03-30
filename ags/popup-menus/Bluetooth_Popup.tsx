@@ -279,10 +279,15 @@ export default function BluetoothPopup(bluetooth: AstalBluetooth.Bluetooth): Gtk
         const row = new Gtk.Box({
             css_classes: ["card"],
             orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 6,
+            spacing: 8,
+            height_request: 48, // 🔥 DAS ist der wichtigste Teil
+            valign: Gtk.Align.CENTER,
         })
 
-        const deviceIcon = new Gtk.Image({ icon_name: device.icon ?? "bluetooth-symbolic" })
+        const deviceIcon = new Gtk.Image({
+            icon_name: device.icon ?? "bluetooth-symbolic",
+            valign: Gtk.Align.CENTER,
+        })
         row.append(deviceIcon)
 
         const infoBox = new Gtk.Box({
@@ -295,61 +300,92 @@ export default function BluetoothPopup(bluetooth: AstalBluetooth.Bluetooth): Gtk
             css_classes: ["label--subtitle"],
             label: device.alias ?? device.name ?? device.address,
             halign: Gtk.Align.START,
-            hexpand: true,
             ellipsize: 3,
             max_width_chars: 30,
         })
-        infoBox.append(nameLabel)
 
         const subLabel = new Gtk.Label({
             css_classes: ["label--meta"],
             label: getSubInfo(device),
             halign: Gtk.Align.START,
-            hexpand: true,
             ellipsize: 3,
             max_width_chars: 30,
         })
+
+        infoBox.append(nameLabel)
         infoBox.append(subLabel)
         row.append(infoBox)
 
+        // === CONNECT ===================================================
         const { btn: connectBtn, icon: connectIcon } = makeIconBtn(
-            device.connected ? "network-wired-disconnected-symbolic" : "bluetooth-active-symbolic",
-            true,
-            "btn--elevated",
-            device.connected ? "Disconnect" : "Connect"
+            device.connected
+                ? "network-wired-disconnected-symbolic"
+                : "bluetooth-active-symbolic",
+            true
         )
+
+        connectBtn.valign = Gtk.Align.CENTER
+
         connectBtn.connect("clicked", () =>
-            execAsync(["bluetoothctl", device.connected ? "disconnect" : "connect", device.address]).catch(console.error)
+            execAsync([
+                "bluetoothctl",
+                device.connected ? "disconnect" : "connect",
+                device.address,
+            ]).catch(console.error)
         )
+
         device.connect("notify::connected", () => {
-            connectIcon.icon_name = device.connected ? "network-wired-disconnected-symbolic" : "bluetooth-active-symbolic"
+            connectIcon.icon_name = device.connected
+                ? "network-wired-disconnected-symbolic"
+                : "bluetooth-active-symbolic"
             subLabel.label = getSubInfo(device)
         })
+
         row.append(connectBtn)
 
+        // === TRUST =====================================================
         const { btn: trustBtn, icon: trustIcon } = makeIconBtn(
-            device.trusted ? "security-high-symbolic" : "security-low-symbolic",
-            true,
-            "btn--warn",
-            device.trusted ? "Untrust" : "Trust"
+            device.trusted ? "security-high" : "security-low",
+            true
         )
+
+        trustBtn.valign = Gtk.Align.CENTER
+
         trustBtn.connect("clicked", () =>
-            execAsync(["bluetoothctl", device.trusted ? "untrust" : "trust", device.address]).catch(console.error)
+            execAsync([
+                "bluetoothctl",
+                device.trusted ? "untrust" : "trust",
+                device.address,
+            ]).catch(console.error)
         )
+
         device.connect("notify::trusted", () => {
-            trustIcon.icon_name = device.trusted ? "security-high-symbolic" : "security-low-symbolic"
+            trustIcon.icon_name = device.trusted
+                ? "security-high"
+                : "security-low"
         })
+
         row.append(trustBtn)
 
-        const { btn: removeBtn, icon: removeIcon } = makeIconBtn("remove-symbolic", true, "btn--danger", "Unpair")
+        // === REMOVE ====================================================
+        const { btn: removeBtn } = makeIconBtn(
+            "remove-symbolic",
+            true,
+            "btn--danger"
+        )
+
+        removeBtn.valign = Gtk.Align.CENTER
         removeBtn.visible = device.paired
+
         removeBtn.connect("clicked", () => {
             execAsync(["bluetoothctl", "remove", device.address]).catch(console.error)
             update()
         })
+
         device.connect("notify::paired", () => {
-            removeBtn.visible = device.paired ? true : false
+            removeBtn.visible = device.paired
         })
+
         row.append(removeBtn)
 
         return row
@@ -382,6 +418,7 @@ export default function BluetoothPopup(bluetooth: AstalBluetooth.Bluetooth): Gtk
             })
             .forEach(d => deviceList.append(makeRow(d)))
     }
+    update()
 
     // SIGNALS ================================================
     toggle.connect("notify::active", () => { if (bluetooth.isPowered !== toggle.active) bluetooth.toggle() })
@@ -394,6 +431,7 @@ export default function BluetoothPopup(bluetooth: AstalBluetooth.Bluetooth): Gtk
     })
     bluetooth.adapter?.connect("notify::discovering", () => {
         scanIcon.cssClasses = bluetooth.adapter.discovering ? ["rescan-icon", "anim--spin"] : ["rescan-icon"]
+        scanBtn.sensitive = !bluetooth.adapter.discovering
     })
 
     settingsBtn.connect("clicked", () => execAsync(["blueman-manager"]).catch(console.error))

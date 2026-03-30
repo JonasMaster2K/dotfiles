@@ -16,6 +16,8 @@ import BluetoothWidget     from "./bar-widgets/Bluetooth_W"
 import BatteryWidget       from "./bar-widgets/Battery_W"
 import PowerWidget         from "./bar-widgets/Power_W"
 import HomeMenuWidget      from "./bar-widgets/HomeMenu_W"
+import DarkModeToggle      from "./bar-widgets/DarkLightModeToggle_W"
+import PomodoroWidget      from "./bar-widgets/Pomodoro_W"
 
 import NotificationPopupFeed from "./components/NotificationPopupFeed"
 
@@ -29,25 +31,29 @@ const appendIfNotNull = (box: Gtk.Box, widget: Gtk.Widget | null) => {
 function createPrimaryBar(monitor: Gdk.Monitor): Astal.Window {
     const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
 
-    const workspaces    = WorkspacesWidget(monitor, true)
-    const mediaPlayer   = MediaPlayerWidget()
-    const clock         = ClockWidget()
-    const updates       = UpdateWidget()
-    const sysInfo       = SysInfoWidget()
-    const colorPicker   = ColorPickerWidget()
-    const screenshot    = ScreenshotWidget()
-    const notifications = NotificationWidget()
-    const audio         = AudioWidget()
-    const network       = NetworkWidget()
-    const bluetooth     = BluetoothWidget()
-    const battery       = BatteryWidget()
-    const power         = PowerWidget()
-    const homeMenu      = HomeMenuWidget()
+    const workspaces        = WorkspacesWidget(monitor, true)
+    const mediaPlayer       = MediaPlayerWidget()
+    const clock             = ClockWidget()
+    const darkModeToggle    = DarkModeToggle()
+    const pomodoro          = PomodoroWidget()
+    const updates           = UpdateWidget()
+    const sysInfo           = SysInfoWidget()
+    const colorPicker       = ColorPickerWidget()
+    const screenshot        = ScreenshotWidget()
+    const notifications     = NotificationWidget()
+    const audio             = AudioWidget()
+    const network           = NetworkWidget()
+    const bluetooth         = BluetoothWidget()
+    const battery           = BatteryWidget()
+    const power             = PowerWidget()
+    const homeMenu          = HomeMenuWidget()
 
     const leftModule = new Gtk.Box({ halign: Gtk.Align.START, hexpand: true })
     appendIfNotNull(leftModule, workspaces)
     leftModule.append(new Gtk.Separator())
     appendIfNotNull(leftModule, mediaPlayer)
+    leftModule.append(new Gtk.Separator())
+    appendIfNotNull(leftModule, pomodoro)
 
     const centerBox = new Gtk.Box({ halign: Gtk.Align.CENTER, valign: Gtk.Align.CENTER })
     appendIfNotNull(centerBox, clock)
@@ -58,6 +64,7 @@ function createPrimaryBar(monitor: Gdk.Monitor): Astal.Window {
     rightModule.append(new Gtk.Separator())
     appendIfNotNull(rightModule, colorPicker)
     appendIfNotNull(rightModule, screenshot)
+    appendIfNotNull(rightModule, darkModeToggle)
     appendIfNotNull(rightModule, notifications)
     appendIfNotNull(rightModule, audio)
     appendIfNotNull(rightModule, network)
@@ -138,7 +145,7 @@ function createSecondaryBar(monitor: Gdk.Monitor): Astal.Window {
 // APP
 // ============================================================
 app.start({
-    css: "./style/themes/Teal_Dark/style.scss",
+    css: "./style/themes/Dark-Mode/style.scss",
     main() {
         NotificationPopupFeed()
 

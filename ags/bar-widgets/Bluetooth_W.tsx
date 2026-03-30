@@ -1,19 +1,12 @@
 import { Gtk } from "ags/gtk4"
 import AstalBluetooth from "gi://AstalBluetooth"
+import TaskBarIconButton from "../components/TaskBarIconButton"
 import BluetoothPopup from "../popup-menus/Bluetooth_Popup"
 
 export default function BluetoothWidget(): Gtk.Widget {
     const bluetooth = AstalBluetooth.get_default()
 
-    const icon = new Gtk.Image({
-        icon_name: bluetooth.isPowered ? "bluetooth-active-symbolic" : "bluetooth-disabled-symbolic",
-    })
-
-    const btn = new Gtk.Button({
-        css_classes: ["statusbar-widget"],
-        valign: Gtk.Align.CENTER,
-    })
-    btn.set_child(icon)
+    const btn = new TaskBarIconButton(bluetooth.isPowered ? "bluetooth-active-symbolic" : "bluetooth-disabled-symbolic")
 
     const popupMenu = BluetoothPopup(bluetooth)
     popupMenu.set_parent(btn)
@@ -23,7 +16,7 @@ export default function BluetoothWidget(): Gtk.Widget {
     rightClick.connect("pressed", () => { bluetooth.toggle() })
 
     bluetooth.connect("notify::is-powered", () => {
-        icon.icon_name = bluetooth.isPowered ? "bluetooth-active-symbolic" : "bluetooth-disabled-symbolic"
+        btn.icon.icon_name = bluetooth.isPowered ? "bluetooth-active-symbolic" : "bluetooth-disabled-symbolic"
     })
 
     btn.connect("clicked", () => popupMenu.popup())

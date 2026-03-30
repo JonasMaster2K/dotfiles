@@ -17,12 +17,6 @@
     "keybind" : "l"
 }
 {
-    "label" : "logout",
-    "action" : "loginctl terminate-user $USER",
-    "text" : "Logout",
-    "keybind" : "e"
-}
-{
     "label" : "reboot",
     "action" : "systemctl reboot",
     "text" : "Reboot",

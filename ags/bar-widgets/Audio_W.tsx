@@ -1,5 +1,6 @@
 import { Gtk } from "ags/gtk4"
 import AstalWp from "gi://AstalWp"
+import TaskBarIconButton from "../components/TaskBarIconButton"
 import AudioPopup from "../popup-menus/Audio_Popup"
 
 export default function AudioWidget(): Gtk.Widget {
@@ -7,13 +8,7 @@ export default function AudioWidget(): Gtk.Widget {
     const audio = wp.audio
     let speaker = audio.defaultSpeaker
 
-    const icon = new Gtk.Image({ icon_name: speaker?.volumeIcon ?? "audio-volume-medium-symbolic" })
-
-    const btn = new Gtk.Button({
-        css_classes: ["statusbar-widget"],
-        valign: Gtk.Align.CENTER,
-    })
-    btn.set_child(icon)
+    const btn = new TaskBarIconButton(speaker?.volumeIcon ?? "audio-volume-medium-symbolic")
 
     const popover = AudioPopup(audio)
     popover.set_parent(btn)
@@ -35,7 +30,7 @@ export default function AudioWidget(): Gtk.Widget {
 
     const update = () => {
         speaker = audio.defaultSpeaker
-        icon.icon_name   = speaker?.volumeIcon ?? "audio-volume-muted-symbolic"
+        btn.icon.icon_name   = speaker?.volumeIcon ?? "audio-volume-muted-symbolic"
         btn.tooltip_text = Math.round((speaker?.volume ?? 0) * 100) + "%"
     }
     update()

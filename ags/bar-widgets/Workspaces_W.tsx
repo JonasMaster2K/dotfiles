@@ -10,25 +10,43 @@ function getIconName(appId: string): string {
     const id = appId.toLowerCase()
     const apps = manager.get_list()
     return (
-        apps.find((a: any) => a.wm_class?.toLowerCase() === id)?.iconName ??
-        apps.find((a: any) => a.entry?.toLowerCase().replace(".desktop", "") === id)?.iconName ??
-        apps.find((a: any) => a.name?.toLowerCase() === id)?.iconName ??
-        apps.find((a: any) => a.iconName?.toLowerCase() === id)?.iconName ??
-        apps.find((a: any) => a.wm_class?.toLowerCase().includes(id) || id.includes(a.wm_class?.toLowerCase()))?.iconName ??
-        apps.find((a: any) => a.iconName?.toLowerCase().includes(id) || id.includes(a.iconName?.toLowerCase()))?.iconName ??
-        apps.find((a: any) => a.name?.toLowerCase().includes(id) || id.includes(a.name?.toLowerCase()))?.iconName ??
+        apps.find((a: AstalApps.Application) => a.wm_class?.toLowerCase() === id)?.iconName ??
+        apps.find((a: AstalApps.Application) => a.entry?.toLowerCase().replace(".desktop", "") === id)?.iconName ??
+        apps.find((a: AstalApps.Application) => a.name?.toLowerCase() === id)?.iconName ??
+        apps.find((a: AstalApps.Application) => a.iconName?.toLowerCase() === id)?.iconName ??
+        apps.find((a: AstalApps.Application) => a.wm_class?.toLowerCase().includes(id) || id.includes(a.wm_class?.toLowerCase()))?.iconName ??
+        apps.find((a: AstalApps.Application) => a.iconName?.toLowerCase().includes(id) || id.includes(a.iconName?.toLowerCase()))?.iconName ??
+        apps.find((a: AstalApps.Application) => a.name?.toLowerCase().includes(id) || id.includes(a.name?.toLowerCase()))?.iconName ??
         "application-x-executable"
     )
 }
 
+// Discriminated Union
+type WS =
+    | AstalHyprland.Workspace
+    | {
+        id: number
+        monitor: null
+        clients: AstalHyprland.Client[]
+        isPlaceholder: true
+    }
+
 // ============================================================
 // WORKSPACE BUTTON
 // ============================================================
-function WorkspaceButton(ws: any): Gtk.Widget {
+
+function WorkspaceButton(ws: WS): Gtk.Widget {
+    const isReal = (ws: WS): ws is AstalHyprland.Workspace =>
+        !("isPlaceholder" in ws)
+
     const btn = new Gtk.Button({ valign: Gtk.Align.CENTER })
 
     const innerBox = new Gtk.Box({ spacing: 5 })
-    innerBox.append(new Gtk.Label({ css_classes: ["workspace__label"], label: ws.id >= 0 ? ws.id.toString() : `S${ws.id + 99}` }))
+    innerBox.append(new Gtk.Label({
+        css_classes: ["workspace__label"],
+        valign: Gtk.Align.CENTER,
+        label: ws.id >= 0 ? ws.id.toString() : `S${ws.id + 99}`,
+    }))
 
     const iconBox = new Gtk.Box({ spacing: 2 })
     innerBox.append(iconBox)
@@ -41,10 +59,10 @@ function WorkspaceButton(ws: any): Gtk.Widget {
             : ["statusbar-widget", "workspace__btn"]
     }
 
-    if (ws.id < 0) {
-        hyprland.connect("event", (_: any, event: string, data: string) => {
+    if (ws.id < 0 && isReal(ws)) {
+        hyprland.connect("event", (_: AstalHyprland.Hyprland, event: string, data: string) => {
             if (event === "activespecial") {
-                const openName = data.split(",")[0] // "special:scratchpad" oder ""
+                const openName = data.split(",")[0]
                 const isOpen = openName === ws.name
                 btn.css_classes = isOpen
                     ? ["statusbar-widget", "workspace__btn", "workspace__btn--active"]
@@ -52,14 +70,19 @@ function WorkspaceButton(ws: any): Gtk.Widget {
             }
         })
     }
+
     updateClasses()
     hyprland.connect("notify::focused-workspace", updateClasses)
 
-    if (ws.monitor) {
+    if (ws.monitor && isReal(ws)) {
         const updateIcons = () => {
             let child = iconBox.get_first_child()
-            while (child) { iconBox.remove(child); child = iconBox.get_first_child() }
-            ws.clients.forEach((win: any) => {
+            while (child) {
+                iconBox.remove(child)
+                child = iconBox.get_first_child()
+            }
+
+            ws.clients.forEach((win: AstalHyprland.Client) => {
                 iconBox.append(new Gtk.Image({
                     css_classes: ["workspace__app-icon"],
                     icon_name: getIconName(win.class),
@@ -67,10 +90,18 @@ function WorkspaceButton(ws: any): Gtk.Widget {
                 }))
             })
         }
+
         updateIcons()
         ws.connect("notify::clients", updateIcons)
-        btn.connect("clicked", () => ws.focus())
     }
+
+    btn.connect("clicked", () => {
+        if (isReal(ws)) {
+            ws.focus()
+        } else {
+            hyprland.dispatch("workspace", String(ws.id))
+        }
+    })
 
     return btn
 }
@@ -78,10 +109,11 @@ function WorkspaceButton(ws: any): Gtk.Widget {
 // ============================================================
 // WORKSPACES WIDGET
 // ============================================================
+
 export default function WorkspacesWidget(gdkMonitor?: Gdk.Monitor, isPrimary = true): Gtk.Widget {
     const monitorModel = gdkMonitor?.model ?? ""
 
-    const baseIds   = isPrimary ? [1, 2, 3, 4, 5] : [6, 7, 8, 9, 10]
+    const baseIds = isPrimary ? [1, 2, 3, 4, 5] : [6, 7, 8, 9, 10]
 
     const box = new Gtk.Box({
         css_classes: ["workspaces"],
@@ -91,18 +123,29 @@ export default function WorkspacesWidget(gdkMonitor?: Gdk.Monitor, isPrimary = t
 
     const updateWorkspaces = () => {
         const filtered = hyprland.workspaces
-            .filter((w: any) => w.monitor?.model === monitorModel)
-            .sort((a: any, b: any) => a.id - b.id)
+            .filter((w: AstalHyprland.Workspace) => w.monitor?.model === monitorModel)
+            .sort((a, b) => a.id - b.id)
 
-        const fixed = baseIds.map((id: number) =>
-            filtered.find((w: any) => w.id === id) ?? { id, monitor: null, clients: [] }
+        const fixed: WS[] = baseIds.map((id: number) =>
+            filtered.find(w => w.id === id) ?? {
+                id,
+                monitor: null,
+                clients: [],
+                isPlaceholder: true,
+            }
         )
-        const extra = filtered.filter((w: any) => !baseIds.includes(w.id))
-        const all   = [...fixed, ...extra]
+
+        const extra: WS[] = filtered.filter(w => !baseIds.includes(w.id))
+
+        const all: WS[] = [...fixed, ...extra]
 
         let child = box.get_first_child()
-        while (child) { box.remove(child); child = box.get_first_child() }
-        all.forEach((ws: any) => box.append(WorkspaceButton(ws)))
+        while (child) {
+            box.remove(child)
+            child = box.get_first_child()
+        }
+
+        all.forEach(ws => box.append(WorkspaceButton(ws)))
     }
 
     updateWorkspaces()

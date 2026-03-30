@@ -24,6 +24,7 @@ NOCONFIRM=false
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 PARU=false
 LOG="$DOTFILES/install.log"
+USER="$(whoami)"
 
 # ── Logging ───────────────────────────────────────────────
 exec > >(tee -a "$LOG") 2>&1
@@ -122,6 +123,7 @@ pacman_install \
 
 require_file "$DOTFILES/sddm/sddm.conf"
 sudo cp -r "$DOTFILES/sddm/Sugar-Candy" /usr/share/sddm/themes/
+sudo mkdir -p /usr/share/sddm/themes/Sugar-Candy/Backgrounds
 
 case $PROFILE in
     galaxybook5)
@@ -201,11 +203,16 @@ else
 fi
 
 sudo_safe_link "$DOTFILES/sddm/sddm.conf" /etc/sddm.conf
+sudo sed -i "s/^User=.*/User=$USER/" /etc/sddm.conf
 
 safe_link "$DOTFILES/hypr/hyprland.conf"                       ~/.config/hypr/hyprland.conf
 safe_link "$DOTFILES/hypr/hyprpaper.conf"                      ~/.config/hypr/hyprpaper.conf
 safe_link "$DOTFILES/hypr/hypridle.conf"                       ~/.config/hypr/hypridle.conf
-safe_link "$DOTFILES/hypr/hyprlock.conf"                       ~/.config/hypr/hyprlock.conf
+if [[ "$PROFILE" == "pc" ]]; then
+    safe_link "$DOTFILES/hypr/hyprlock_pc.conf" ~/.config/hypr/hyprlock.conf
+else
+    safe_link "$DOTFILES/hypr/hyprlock.conf"    ~/.config/hypr/hyprlock.conf
+fi
 safe_link "$DOTFILES/hypr/hyprsunset.conf"                     ~/.config/hypr/hyprsunset.conf
 safe_link "$DOTFILES/xdg-desktop-portal/hyprland-portals.conf" ~/.config/xdg-desktop-portal/portals.conf
 
@@ -235,14 +242,14 @@ fi
 if confirm "EXTRA — Shell & terminal (kitty, fish, starship, eza, fastfetch)"; then
     pacman_install kitty fish eza starship fastfetch
 
-    safe_link "$DOTFILES/kitty/kitty.conf"   ~/.config/kitty/kitty.conf
-    safe_link "$DOTFILES/kitty/colors.conf"  ~/.config/kitty/colors.conf
+    safe_link "$DOTFILES/kitty/kitty.conf"     ~/.config/kitty/kitty.conf
+    safe_link "$DOTFILES/kitty/colors.conf"    ~/.config/kitty/colors.conf
     safe_link "$DOTFILES/kitty/search.py"      ~/.config/kitty/search.py
     safe_link "$DOTFILES/kitty/scroll_mark.py" ~/.config/kitty/scroll_mark.py
-    safe_link "$DOTFILES/fish/config.fish"   ~/.config/fish/config.fish
-    safe_link "$DOTFILES/fish/fish_variables" ~/.config/fish/fish_variables
+    safe_link "$DOTFILES/fish/config.fish"     ~/.config/fish/config.fish
+    safe_link "$DOTFILES/fish/fish_variables"  ~/.config/fish/fish_variables
     [[ -f "$DOTFILES/starship.toml" ]] && \
-        safe_link "$DOTFILES/starship.toml"  ~/.config/starship.toml
+        safe_link "$DOTFILES/starship.toml"    ~/.config/starship.toml
 
     if confirm "EXTRA — Set fish as default shell"; then
         if command -v fish &>/dev/null; then
@@ -258,7 +265,7 @@ fi
 if confirm "EXTRA — UI & Wayland tools (wofi, clipboard, grim, slurp)"; then
     pacman_install wofi wl-clipboard cliphist pacman-contrib grim slurp
 
-    safe_link "$DOTFILES/wofi/config" ~/.config/wofi/config
+    safe_link "$DOTFILES/wofi/config"    ~/.config/wofi/config
     safe_link "$DOTFILES/wofi/style.css" ~/.config/wofi/style.css
 fi
 
@@ -289,24 +296,24 @@ if confirm "EXTRA — Programming languages"; then
     pacman_install git cmake ninja meson
 
     confirm "DEV — C/C++ (gcc, clang, clangd, gdb)" && pacman_install gcc clang gdb
-    confirm "DEV — Rust (rustc, cargo)" && pacman_install rust
-    confirm "DEV — Java (jdk21-openjdk)" && pacman_install jdk21-openjdk
-    confirm "DEV — Kotlin" && pacman_install kotlin
-    confirm "DEV — Go" && pacman_install go
-    confirm "DEV — Node.js / TypeScript" && pacman_install nodejs npm && npm install -g typescript
-    confirm "DEV — Python" && pacman_install python python-pip
-    confirm "DEV — PHP" && pacman_install php
-    confirm "DEV — Lua" && pacman_install lua
-    confirm "DEV — Zig" && pacman_install zig
+    confirm "DEV — Rust (rustc, cargo)"              && pacman_install rust
+    confirm "DEV — Java (jdk21-openjdk)"             && pacman_install jdk21-openjdk
+    confirm "DEV — Kotlin"                           && pacman_install kotlin
+    confirm "DEV — Go"                               && pacman_install go
+    confirm "DEV — Node.js / TypeScript"             && pacman_install nodejs npm && npm install -g typescript
+    confirm "DEV — Python"                           && pacman_install python python-pip
+    confirm "DEV — PHP"                              && pacman_install php
+    confirm "DEV — Lua"                              && pacman_install lua
+    confirm "DEV — Zig"                              && pacman_install zig
 fi
 
 if confirm "EXTRA — Tools"; then
-    confirm "Obsidian" && pacman_install obsidian
-    confirm "Email" && pacman_install thunderbird
-    confirm "Backup" && pacman_install timeshift
-    confirm "Antivirus" && pacman_install clamtk
-    confirm "Airdrop" && paru_install localsend-bin
-    confirm "Firewall" && paru_install portmaster-bin
+    confirm "Obsidian"   && pacman_install obsidian
+    confirm "Email"      && pacman_install thunderbird
+    confirm "Backup"     && pacman_install timeshift
+    confirm "Antivirus"  && pacman_install clamtk
+    confirm "Airdrop"    && paru_install localsend-bin
+    confirm "Firewall"   && paru_install portmaster-bin
 fi
 
 # ── Samsung Galaxy Book5 Extras ───────────────────────────
@@ -348,7 +355,7 @@ if $PARU && confirm "EXTRA — AUR packages (zen-browser, vscodium, spotify, ags
         nordzy-cursors tokyonight-gtk-theme-git
 
     if command -v wlogout &>/dev/null; then
-        safe_link "$DOTFILES/wlogout/layout"   ~/.config/wlogout/layout
+        safe_link "$DOTFILES/wlogout/layout" ~/.config/wlogout/layout
     fi
 fi
 
@@ -356,20 +363,19 @@ fi
 if confirm "EXTRA — Apply GTK theme, icons & cursor"; then
     mkdir -p ~/.config/gtk-3.0
     cat > ~/.config/gtk-3.0/settings.ini << 'INI'
-    [Settings]
-    gtk-theme-name=Tokyonight-Dark
-    gtk-icon-theme-name=Papirus-Dark
-    gtk-cursor-theme-name=Nordzy-cursors
-    gtk-cursor-theme-size=24
-    gtk-font-name=JetBrainsMono Nerd Font 11
+[Settings]
+gtk-theme-name=Tokyonight-Dark
+gtk-icon-theme-name=Papirus-Dark
+gtk-cursor-theme-name=Nordzy-cursors
+gtk-cursor-theme-size=24
+gtk-font-name=JetBrainsMono Nerd Font 11
 INI
 
-    # gsettings (wirkt sofort in laufender Session)
-    gsettings set org.gnome.desktop.interface gtk-theme        "Tokyonight-Dark"
-    gsettings set org.gnome.desktop.interface icon-theme       "Papirus-Dark"
-    gsettings set org.gnome.desktop.interface cursor-theme     "Nordzy-cursors"
-    gsettings set org.gnome.desktop.interface cursor-size      24
-    gsettings set org.gnome.desktop.interface font-name        "JetBrainsMono Nerd Font 11"
+    gsettings set org.gnome.desktop.interface gtk-theme    "Tokyonight-Dark"
+    gsettings set org.gnome.desktop.interface icon-theme   "Papirus-Dark"
+    gsettings set org.gnome.desktop.interface cursor-theme "Nordzy-cursors"
+    gsettings set org.gnome.desktop.interface cursor-size  24
+    gsettings set org.gnome.desktop.interface font-name    "JetBrainsMono Nerd Font 11"
 fi
 
 

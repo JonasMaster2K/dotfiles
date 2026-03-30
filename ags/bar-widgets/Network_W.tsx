@@ -1,18 +1,13 @@
 import { Gtk } from "ags/gtk4"
 import AstalNetwork from "gi://AstalNetwork"
+import TaskBarIconButton from "../components/TaskBarIconButton"
 import NetworkPopup from "../popup-menus/Network_Popup"
 
 export default function NetworkWidget(): Gtk.Widget {
     const network = AstalNetwork.get_default()
 
     // STRUCTURE ==============================================
-    const icon = new Gtk.Image({ icon_name: "network-no-route-symbolic" })
-
-    const btn = new Gtk.Button({
-        css_classes: ["statusbar-widget"],
-        valign: Gtk.Align.CENTER,
-    })
-    btn.set_child(icon)
+    const btn = new TaskBarIconButton("network-no-route-symbolic")
 
     const popupMenu = NetworkPopup(network)
     popupMenu.set_parent(btn)
@@ -34,23 +29,23 @@ export default function NetworkWidget(): Gtk.Widget {
 
         switch (network.primary) {
             case AstalNetwork.Primary.WIRED:
-                icon.icon_name = network.wired.iconName
+                btn.icon.icon_name = network.wired.iconName
                 wiredHandler = network.wired.connect("notify::icon-name", () => {
-                    icon.icon_name = network.wired.iconName
+                    btn.icon.icon_name = network.wired.iconName
                 })
                 break
             case AstalNetwork.Primary.WIFI:
-                icon.icon_name   = network.wifi.iconName
+                btn.icon.icon_name   = network.wifi.iconName
                 btn.tooltip_text = network.wifi.ssid
                 wifiIconHandler = network.wifi.connect("notify::icon-name", () => {
-                    icon.icon_name = network.wifi.iconName
+                    btn.icon.icon_name = network.wifi.iconName
                 })
                 wifiSsidHandler = network.wifi.connect("notify::ssid", () => {
                     btn.tooltip_text = network.wifi.ssid
                 })
                 break
             default:
-                icon.icon_name = "network-no-route-symbolic"
+                btn.icon.icon_name = "network-no-route-symbolic"
         }
     }
 

@@ -16,11 +16,11 @@ function formatNet(bytes: number) {
 
 export default function SysInfoWidget(): Gtk.Widget {
     // LABELS =================================================
-    const netRxLabel   = new Gtk.Label({ css_classes: ["label--meta"] })
-    const netTxLabel   = new Gtk.Label({ css_classes: ["label--meta"] })
-    const cpuLabel     = new Gtk.Label({ css_classes: ["label--meta"] })
-    const cpuTempLabel = new Gtk.Label({ css_classes: ["label--meta"] })
-    const memLabel     = new Gtk.Label({ css_classes: ["label--meta"] })
+    const netRxLabel   = new Gtk.Label({ css_classes: ["label--meta"], valign: Gtk.Align.CENTER })
+    const netTxLabel   = new Gtk.Label({ css_classes: ["label--meta"], valign: Gtk.Align.CENTER })
+    const cpuLabel     = new Gtk.Label({ css_classes: ["label--meta"], valign: Gtk.Align.CENTER })
+    const cpuTempLabel = new Gtk.Label({ css_classes: ["label--meta"], valign: Gtk.Align.CENTER })
+    const memLabel     = new Gtk.Label({ css_classes: ["label--meta"], valign: Gtk.Align.CENTER })
 
     // STRUCTURE ==============================================
     const sep = () => new Gtk.Label({ css_classes: ["text--tertiary"], label: "|" })
@@ -52,9 +52,9 @@ export default function SysInfoWidget(): Gtk.Widget {
     })
     revealer.set_child(revealerBox)
 
-    const box = new Gtk.Box({ spacing: 6 })
+    const box = new Gtk.Box({ spacing: 6, valign: Gtk.Align.CENTER, margin_start: 3, margin_end: 3 })
     box.append(revealer)
-    box.append(new Gtk.Image({ icon_name: "computer-symbolic", pixel_size: 16 }))
+    box.append(new Gtk.Image({ icon_name: "computer-symbolic", pixel_size: 16, valign: Gtk.Align.CENTER }))
 
     const btn = new Gtk.Button({
         css_classes: ["statusbar-widget"],

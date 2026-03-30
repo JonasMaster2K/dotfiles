@@ -1,5 +1,6 @@
 import { Gtk } from "ags/gtk4"
 import Battery from "gi://AstalBattery"
+import TaskBarIconButton from "../components/TaskBarIconButton"
 import BatteryPopup from "../popup-menus/Battery_Popup"
 
 const formatTime = (seconds: number) => {
@@ -15,21 +16,15 @@ export default function BatteryWidget(): Gtk.Widget | null {
 
     if (!battery.isPresent) return null
 
-    const icon = new Gtk.Image({ icon_name: battery.batteryIconName })
-
-    const btn = new Gtk.Button({
-        css_classes: ["statusbar-widget"],
-        valign: Gtk.Align.CENTER,
-        visible: battery.isPresent,
-    })
-    btn.set_child(icon)
+    const btn = new TaskBarIconButton(battery.batteryIconName)
+    btn.visible = battery.isPresent
 
     const popover = BatteryPopup(battery)
     popover.set_parent(btn)
 
     // FUNCTIONALITY ==========================================
     const update = () => {
-        icon.icon_name = battery.batteryIconName
+        btn.icon.iconName = battery.batteryIconName
         const pct = battery.percentage
 
         btn.css_classes = [

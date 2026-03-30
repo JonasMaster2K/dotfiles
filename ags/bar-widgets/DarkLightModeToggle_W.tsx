@@ -2,8 +2,8 @@ import { Gtk } from "ags/gtk4"
 import Gdk from "gi://Gdk?version=4.0"
 import GLib from "gi://GLib"
 
-const DARK_CSS  = `${GLib.get_home_dir()}/.config/ags/style/themes/Teal_Dark/style.scss`
-const LIGHT_CSS = `${GLib.get_home_dir()}/.config/ags/style/themes/Teal_Light/style.scss`
+const DARK_CSS  = `${GLib.get_home_dir()}/dotfiles/ags/style/themes/Dark-Mode/style.scss`
+const LIGHT_CSS = `${GLib.get_home_dir()}/dotfiles/ags/style/themes/Light-Mode/style.scss`
 
 let currentProvider: Gtk.CssProvider | null = null
 let isDark = true

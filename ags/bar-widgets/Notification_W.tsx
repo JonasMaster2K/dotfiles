@@ -1,31 +1,12 @@
 import { Gtk } from "ags/gtk4"
 import AstalNotifd from "gi://AstalNotifd?version=0.1"
+import TaskBarIconButton from "../components/TaskBarIconButton"
 import NotificationPopup from "../popup-menus/Notifications_Popup"
 
 const notify = AstalNotifd.get_default()
 
 export default function NotificationWidget(): Gtk.Widget {
-    // STRUCTURE ==============================================
-    const icon = new Gtk.Image({
-        icon_name: "notification-symbolic",
-        pixel_size: 16,
-    })
-
-    const countLabel = new Gtk.Label({
-        css_classes: ["label--count"],
-        label: "",
-        visible: false,
-    })
-
-    const box = new Gtk.Box({ spacing: 4 })
-    box.append(icon)
-    box.append(countLabel)
-
-    const btn = new Gtk.Button({
-        css_classes: ["statusbar-widget"],
-        valign: Gtk.Align.CENTER,
-    })
-    btn.set_child(box)
+    const btn = new TaskBarIconButton("notification-symbolic")
 
     // POPOVER ================================================
     const popover = NotificationPopup()
@@ -35,12 +16,22 @@ export default function NotificationWidget(): Gtk.Widget {
     // FUNCTIONALITY ==========================================
     const update = () => {
         const n = notify.notifications
-        icon.icon_name     = notify.dontDisturb
-            ? "notifications-disabled-symbolic"
-            : "notification-symbolic"
-        countLabel.label   = n.length > 0 ? n.length.toString() : ""
-        countLabel.visible = n.length > 0 && !notify.dontDisturb
-        btn.tooltip_text   = notify.dontDisturb ? "Do not disturb" : n.length.toString()
+        let tooltip: string
+
+        if (notify.dontDisturb) {
+            tooltip = "Do not disturb"
+        } else if (n.length === 0) {
+            tooltip = "No notifications"
+        } else if (n.length === 1) {
+            tooltip = "1 notification"
+        } else {
+            tooltip = `${n.length} notifications`
+        }
+        btn.icon_name     = notify.dontDisturb
+            ? "notifications-disabled"
+            : n.length > 0 ? "notification-active" 
+            : "notification-inactive"
+        btn.tooltip_text   = tooltip
     }
 
     notify.connect("notified",             update)

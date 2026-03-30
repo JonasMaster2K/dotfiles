@@ -65,6 +65,17 @@ tooltip label {
   background: var(--bg-overlay);
 }
 
+.statusbar-widget__no-hover {
+  background: transparent;
+  color: var(--text-primary);
+  font-style: normal;
+  border: none;
+  border-radius: var(--r-md);
+  padding: var(--space-1);
+  transition: background var(--duration-fast) var(--ease),
+              color var(--duration-fast) var(--ease);
+}
+
 /* ════════════════════════════════
    FOCUS RING RESET
 ════════════════════════════════ */

@@ -203,6 +203,23 @@ export default function Notification({
         card.append(bodyRow)
     }
 
+    // == ACTIONS ===========================================================
+    if (n.actions && n.actions.length > 0) {
+        const actionsBox = new Gtk.Box({ spacing: 4, halign: Gtk.Align.CENTER })
+        n.actions.forEach((action: AstalNotifd.Action) => {
+            const btn = new Gtk.Button({
+                css_classes: ["btn", "btn--outlined"],
+                label: action.label,
+            })
+            btn.connect("clicked", () => {
+                n.invoke(action.id)
+                destroyWithAnims()
+            })
+            actionsBox.append(btn)
+        })
+        card.append(actionsBox)
+    }
+
     // correct order: header always first
     card.prepend(header)
 

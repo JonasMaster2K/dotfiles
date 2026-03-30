@@ -18,8 +18,8 @@ export default function NotificationPopupFeed() {
         const list = new Gtk.Box({
             orientation: Gtk.Orientation.VERTICAL,
             spacing: 5,
-            margin_top: 8,
-            margin_end: 8,
+            margin_top: 6,
+            margin_end: 6,
         })
 
         const win = new Astal.Window({
@@ -27,6 +27,7 @@ export default function NotificationPopupFeed() {
             gdkmonitor: monitor,
             visible: false,
             anchor: Astal.WindowAnchor.TOP | Astal.WindowAnchor.RIGHT,
+            width_request: 400
         })
         win.set_child(list)
 

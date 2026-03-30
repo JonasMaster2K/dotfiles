@@ -147,6 +147,18 @@ image.media-cover {
   -gtk-icon-size: 16px;
   opacity: 0.85;
 }
+.tab-btn { /* normaler Tab Button */ }
+.tab-btn--active { /* aktiver Tab, z.B. border-bottom oder accent color */ }
+.text--clock { font-size: 2rem; letter-spacing: 0.05em; }
+.text--2xl { font-size: 2.5rem; }
+.text--xs { font-size: 0.7rem; }
+.media-progress trough {
+    min-height: 4px;
+    border-radius: 2px;
+}
+.media-progress progress {
+    border-radius: 2px;
+}
 
 /* ════════════════════════════════
    MISC
