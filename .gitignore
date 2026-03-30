@@ -2,11 +2,11 @@
 repos/
 install.log
 TODO.md
-ags_hotreload.sh
 @girs/
 env.d.ts
 tsconfig.json
 node_modules/
 .vscode/
 tmp
-installer
+installer/target
+installer/Cargo.lock
