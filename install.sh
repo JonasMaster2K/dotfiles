@@ -176,9 +176,9 @@ if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
         require_file "$DOTFILES/acpi/events/samsung-kbd-backlight"
         sudo install -m 755 "$DOTFILES/acpi/samsung-kbd-backlight.sh" /etc/acpi/samsung-kbd-backlight.sh
         sudo cp "$DOTFILES/acpi/events/samsung-kbd-backlight" /etc/acpi/events/samsung-kbd-backlight
-        
+
         echo ""
-        echo "==> [CORE] Samsung ACPI mix mute button"
+        echo "==> [CORE] Samsung ACPI mic mute button"
         require_file "$DOTFILES/acpi/samsung-mic-mute.sh"
         require_file "$DOTFILES/acpi/events/samsung-mic-mute"
         sudo install -m 755 "$DOTFILES/acpi/samsung-mic-mute.sh" /etc/acpi/samsung-mic-mute.sh
@@ -200,7 +200,13 @@ if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
         echo ""
         echo "==> [CORE] Intel ISH Firmware für Tablet Mode"
         require_file "$DOTFILES/driver/ish_lnlm_053dca6a.bin"
+        sudo mkdir -p /lib/firmware/intel/ish
         sudo cp "$DOTFILES/driver/ish_lnlm_053dca6a.bin" /lib/firmware/intel/ish/
+
+        echo ""
+        echo "==> [CORE] iio-sensor-proxy & Autorotation"
+        pacman_install iio-sensor-proxy
+        paru_install iio-hyprland
 
         echo ""
         echo "==> [CORE] Tablet mode"
