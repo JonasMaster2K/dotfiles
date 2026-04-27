@@ -1,0 +1,50 @@
+/* ════════════════════════════════
+   WIDGET — Notifications
+════════════════════════════════ */
+.notification-feed {
+  min-height: 150px;
+}
+
+.notification__card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: var(--space-2) var(--space-3);
+  transition: border-color var(--duration-fast) var(--ease);
+}
+
+.notification__card:hover {
+  border-color: var(--border-default);
+}
+
+.notification__card.notification--low {
+  border-left: 3px solid var(--text-tertiary);
+  opacity: 0.8;
+}
+
+.notification__card.notification--normal {
+  border-left: 3px solid var(--accent);
+}
+
+.notification__card.notification--critical {
+  border-left: 3px solid var(--err);
+  background: color-mix(in srgb, var(--bg-surface) 92%, var(--err));
+}
+
+.notification__card.notification--critical .notification__icon {
+  color: var(--err);
+}
+
+.notification__btn--dismiss:hover {
+  background: var(--err-muted);
+  color: var(--err);
+}
+
+.notification__btn--minimize:hover {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.rescan-icon.spinning {
+  animation: spin 1s linear infinite;
+}

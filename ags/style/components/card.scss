@@ -1,0 +1,47 @@
+/* ════════════════════════════════
+   COMPONENT — Card
+════════════════════════════════ */
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: var(--space-2) var(--space-3);
+  transition: border-color var(--duration-fast) var(--ease);
+}
+
+.card:hover {
+  border-color: var(--border-default);
+}
+
+.card--accent {
+  background: var(--accent-subtle);
+  border-color: var(--accent-muted);
+}
+
+.card--err {
+  background: var(--err-muted);
+  border-color: var(--err);
+}
+
+.card--warn {
+  background: var(--warn-muted);
+  border-color: var(--warn);
+}
+
+.card--ok {
+  background: var(--ok-muted);
+  border-color: var(--ok);
+}
+
+.card image {
+  -gtk-icon-size: 16px;
+  opacity: 0.85;
+}
+
+.user-avatar {
+  background: var(--bg-overlay);
+  border-radius: 50%;
+  min-width: 52px;
+  min-height: 52px;
+  padding: var(--space-2);
+}

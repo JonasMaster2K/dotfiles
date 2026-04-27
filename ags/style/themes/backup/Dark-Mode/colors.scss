@@ -1,0 +1,78 @@
+/* ══════════════════════════════
+   THEME VARIABLES — Nordic Blue
+══════════════════════════════ */
+:root {
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrainsMono Nerd Font', monospace;
+  --text-xs:  10px;
+  --text-sm:  12px;
+  --text-md:  14px;
+  --text-lg:  18px;
+  --text-xl:  24px;
+  --text-2xl: 32px;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-bold:   700;
+  --leading-tight:  1.3;
+  --leading-normal: 1.6;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+/* ── Backgrounds ── tiefes blaugrau, kein reines schwarz */
+  --bg-base:     #1e2430;
+  --bg-surface:  #242d3d;
+  --bg-elevated: #2d3850;
+  --bg-overlay:  #374460;
+  --bg-hover:    #3f4e6e;
+
+/* ── Borders ── */
+  --border-subtle:  #2d3850;
+  --border-default: #374460;
+  --border-strong:  #5a6a8a;
+
+/* ── Text ── warm-neutral, kein kaltes weiß */
+  --text-primary:   #d8e0ed;
+  --text-secondary: #a8b8d0;
+  --text-tertiary:  #5a6a8a;
+  --text-disabled:  #374460;
+  --text-inverse:   #1e2430;
+
+/* ── Accent · Ice Blue ── */
+  --accent:          #88c0d0;
+  --accent-muted:    #1a3040;
+  --accent-hover:    #9ecfde;
+  --accent-subtle:   #112030;
+  --accent-selected: #1e3d50;
+
+/* ── Semantic colors ── */
+  --ok:           #a3be8c;
+  --ok-muted:     #1a2e18;
+  --warn:         #ebcb8b;
+  --warn-muted:   #2e2610;
+  --err:          #bf616a;
+  --err-muted:    #2e1418;
+  --info:         #88c0d0;
+  --info-muted:   #112030;
+  --purple:       #b48ead;
+  --purple-muted: #241830;
+
+/* ── Radii ── */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+
+/* ── Shadows ── */
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.4);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.45);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+
+/* ── Motion ── */
+  --duration-fast:   100ms;
+  --duration-normal: 200ms;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}

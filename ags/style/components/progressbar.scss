@@ -1,0 +1,44 @@
+/* ════════════════════════════════
+   COMPONENT — Progressbar
+════════════════════════════════ */
+
+/* Battery */
+progressbar.battery-bar trough {
+  background: var(--bg-overlay);
+  border-radius: var(--r-sm);
+  min-height: 6px;
+}
+
+progressbar.battery-bar trough progress {
+  background: var(--accent);
+  border-radius: var(--r-sm);
+  transition: background var(--duration-fast) var(--ease);
+}
+
+progressbar.battery-bar.battery--low trough progress      { background: var(--warn); }
+progressbar.battery-bar.battery--critical trough progress { background: var(--err); }
+
+/* Bluetooth pairing */
+progressbar.pairing-bar trough {
+  background: var(--bg-overlay);
+  border-radius: var(--r-sm);
+  min-height: 4px;
+}
+
+progressbar.pairing-bar trough progress {
+  background: var(--accent);
+  border-radius: var(--r-sm);
+  transition: background var(--duration-fast) var(--ease);
+}
+
+/* Media player */
+.media-progress trough {
+  min-height: 4px;
+  border-radius: 2px;
+  background: var(--bg-overlay);
+}
+
+.media-progress trough progress {
+  border-radius: 2px;
+  background: var(--accent);
+}

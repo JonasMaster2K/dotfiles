@@ -1,2 +1,2 @@
 #!/bin/bash
-find dotfiles/ags -name "*.tsx" -o -name "*.scss" -o -name "*.css" | entr -rs 'ags quit; ags run dotfiles/ags/app.tsx'
+find dotfiles/ags -name "*.tsx" -o -name "*.scss" -o -name "*.css" | entr -rs 'ags quit; ags run dotfiles/ags/app.tsx 2>&1 | tee /tmp/ags.log'

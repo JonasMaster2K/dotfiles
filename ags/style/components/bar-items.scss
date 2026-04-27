@@ -1,0 +1,69 @@
+/* ════════════════════════════════
+   BAR ITEMS — shared base
+════════════════════════════════ */
+.bar__btn,
+.bar__widget {
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text-primary);
+  font-style: normal;
+  border: none;
+  padding: var(--space-1) var(--space-2);
+}
+
+.bar__btn {
+  transition: background var(--duration-fast) var(--ease),
+              color var(--duration-fast) var(--ease);
+}
+
+.bar__btn:hover {
+  background: var(--bg-overlay);
+}
+
+.bar__btn--active {
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+.bar__btn--ok {
+  border-radius: var(--r-md);
+  background: var(--ok-muted);
+  color: var(--accent);
+  font-style: normal;
+  border: 1px solid var(--ok);
+  padding: var(--space-1) var(--space-2);
+}
+
+.bar__btn--ok:hover {
+  background: var(--bg-overlay);
+}
+
+.bar__btn--warn {
+  border-radius: var(--r-md);
+  background: var(--warn-muted);
+  color: var(--accent);
+  font-style: normal;
+  border: 1px solid var(--warn);
+  padding: var(--space-1) var(--space-2);
+}
+
+.bar__btn--warn:hover {
+  background: var(--bg-overlay);
+}
+
+.bar__btn--err {
+  border-radius: var(--r-md);
+  background: var(--err-muted);
+  color: var(--accent);
+  font-style: normal;
+  border: 1px solid var(--err);
+  padding: var(--space-1) var(--space-2);
+}
+
+.bar__btn--err:hover {
+  background: var(--bg-overlay);
+}
+
+.bar__btn--no-hover:hover {
+  background: transparent;
+}

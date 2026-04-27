@@ -4,7 +4,7 @@ export interface ProgressCircleWidget extends Gtk.Overlay {
     fraction: number
 }
 
-export default function ProgressCircle(size: number = 28): ProgressCircleWidget {
+export default function ProgressCircle(size: number = 32): ProgressCircleWidget {
     const canvas = new Gtk.DrawingArea({
         css_classes: ["circprog"],
         width_request: size,

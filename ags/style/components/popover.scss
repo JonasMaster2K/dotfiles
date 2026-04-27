@@ -1,0 +1,26 @@
+/* ════════════════════════════════
+   COMPONENT — Popover & Tooltip
+════════════════════════════════ */
+.popover--panel {
+  background: var(--bg-base);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-3);
+}
+
+.popover--panel--sm { padding: var(--space-2); }
+.popover--panel--lg { padding: var(--space-4); }
+
+tooltip {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-sm);
+  padding: var(--space-1) var(--space-2);
+}
+
+tooltip label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+}

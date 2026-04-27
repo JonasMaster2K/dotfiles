@@ -1,0 +1,96 @@
+/* ════════════════════════════════
+   BASE — Typography Classes
+════════════════════════════════ */
+
+/* Size */
+.text--xs   { font-size: var(--text-xs); }
+.text--sm   { font-size: var(--text-sm); }
+.text--md   { font-size: var(--text-md); }
+.text--lg   { font-size: var(--text-lg); }
+.text--xl   { font-size: var(--text-xl); }
+.text--2xl  { font-size: var(--text-2xl); }
+
+/* Family */
+.text--mono { font-family: var(--font-mono); }
+.text--sans { font-family: var(--font-sans); }
+
+/* Weight */
+.text--normal { font-weight: var(--font-normal); }
+.text--medium { font-weight: var(--font-medium); }
+.text--bold   { font-weight: var(--font-bold); }
+
+/* Line height */
+.text--tight     { line-height: var(--leading-tight); }
+.text--normal-lh { line-height: var(--leading-normal); }
+
+/* Style / transform */
+.text--italic      { font-style: italic; }
+.text--upper       { text-transform: uppercase; }
+.text--tracking    { letter-spacing: 0.08em; }
+.text--tracking-sm { letter-spacing: 0.05em; }
+.text--strike      { text-decoration: line-through; }
+
+/* Colors */
+.text--primary   { color: var(--text-primary); }
+.text--secondary { color: var(--text-secondary); }
+.text--tertiary  { color: var(--text-tertiary); }
+.text--disabled  { color: var(--text-disabled); }
+.text--inverse   { color: var(--text-inverse); }
+.text--accent    { color: var(--accent); }
+.text--ok        { color: var(--ok); }
+.text--warn      { color: var(--warn); }
+.text--err       { color: var(--err); }
+.text--info      { color: var(--info); }
+.text--purple    { color: var(--purple); }
+
+.text--err-tint  { color: color-mix(in srgb, var(--text-primary) 80%, var(--err)); }
+.text--warn-tint { color: color-mix(in srgb, var(--text-primary) 80%, var(--warn)); }
+.text--ok-tint   { color: color-mix(in srgb, var(--text-primary) 80%, var(--ok)); }
+
+/* Semantic label variants */
+.label--section {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.label--title {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+}
+
+.label--subtitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.label--meta {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.label--mono-sm {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.label--count {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--accent);
+}
+
+.label--done {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+}

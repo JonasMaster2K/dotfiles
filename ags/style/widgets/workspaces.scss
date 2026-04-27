@@ -1,0 +1,25 @@
+
+/* ════════════════════════════════
+   WORKSPACES
+════════════════════════════════ */
+.bar__workspaces {
+  padding-left: var(--space-2);
+}
+
+.workspace__btn {
+  color: var(--text-tertiary);
+  transition: color var(--duration-fast) var(--ease);
+}
+
+.workspace__btn:hover          { color: var(--text-secondary); }
+.workspace__btn--active        { color: var(--accent); }
+
+.workspace__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-md);
+  color: inherit;
+}
+
+.workspace__btn--active .workspace__label  { font-weight: var(--font-bold); }
+.workspace__app-icon                       { opacity: 0.5; }
+.workspace__btn--active .workspace__app-icon { opacity: 0.9; }

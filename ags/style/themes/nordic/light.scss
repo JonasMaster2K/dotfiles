@@ -1,0 +1,97 @@
+/* ════════════════════════════════
+   THEME — Nordic Light
+════════════════════════════════ */
+/* ════════════════════════════════
+   THEME — Nord Light
+   nord.theme.org
+════════════════════════════════ */
+:root {
+  /* Polar Night */
+  --nord0: #2e3440;
+  --nord1: #3b4252;
+  --nord2: #434c5e;
+  --nord3: #4c566a;
+
+  /* Snow Storm */
+  --nord4: #d8dee9;
+  --nord5: #e5e9f0;
+  --nord6: #eceff4;
+
+  /* Frost */
+  --nord7:  #8fbcbb;
+  --nord8:  #88c0d0;
+  --nord9:  #81a1c1;
+  --nord10: #5e81ac;
+
+  /* Aurora */
+  --nord11: #bf616a;
+  --nord12: #d08770;
+  --nord13: #ebcb8b;
+  --nord14: #a3be8c;
+  --nord15: #b48ead;
+
+  /* ── Semantic mapping ── */
+  --bg-base:     var(--nord6);
+  --bg-surface:  var(--nord5);
+  --bg-elevated: var(--nord4);
+  --bg-overlay:  #c8d0de;
+  --bg-hover:    #b8c4d4;
+
+  --border-subtle:  #d0d8e4;
+  --border-default: #bcc8d8;
+  --border-strong:  var(--nord3);
+
+  --text-primary:   var(--nord0);
+  --text-secondary: var(--nord1);
+  --text-tertiary:  var(--nord3);
+  --text-disabled:  var(--nord4);
+  --text-inverse:   var(--nord6);
+
+  --accent:          var(--nord10);
+  --accent-hover:    var(--nord9);
+  --accent-muted:    #c8d8ec;
+  --accent-subtle:   #dce6f4;
+  --accent-selected: #c0d4ec;
+
+  --ok:           #5a8a4a;
+  --ok-muted:     #d8ecd0;
+  --warn:         #b06020;
+  --warn-muted:   #f0dcc8;
+  --err:          var(--nord11);
+  --err-muted:    #f0d0d2;
+  --info:         var(--nord9);
+  --info-muted:   #d0dcea;
+  --purple:       var(--nord15);
+  --purple-muted: #e8d8ec;
+}
+
+/* ── Tokens ── */
+@import "../../tokens/typography.scss";
+@import "../../tokens/spacing.scss";
+@import "../../tokens/radius.scss";
+@import "../../tokens/shadow.scss";
+@import "../../tokens/motion.scss";
+
+/* ── Base ── */
+@import "../../base/reset.scss";
+@import "../../base/typography.scss";
+@import "../../base/spacing.scss";
+
+/* ── Utils ── */
+@import "../../utils/animations.scss";
+@import "../../utils/misc.scss";
+
+/* ── Components ── */
+@import "../../components/bar-items.scss";
+@import "../../components/button.scss";
+@import "../../components/card.scss";
+@import "../../components/input.scss";
+@import "../../components/popover.scss";
+@import "../../components/progressbar.scss";
+
+/* ── Widgets ── */
+@import "../../widgets/taskbar.scss";
+@import "../../widgets/workspaces.scss";
+@import "../../widgets/media-player.scss";
+@import "../../widgets/clock.scss";
+@import "../../widgets/notifications.scss";

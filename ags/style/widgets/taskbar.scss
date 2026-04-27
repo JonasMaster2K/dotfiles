@@ -1,0 +1,16 @@
+/* ════════════════════════════════
+   TASKBAR
+════════════════════════════════ */
+.taskbar {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-size: var(--text-md);
+  padding: var(--space-1) var(--space-3);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+separator {
+  background: var(--border-strong);
+  min-width: 1px;
+  margin: var(--space-2) var(--space-1);
+}

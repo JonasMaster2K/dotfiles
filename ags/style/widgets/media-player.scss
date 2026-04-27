@@ -1,0 +1,43 @@
+/* ════════════════════════════════
+   MEDIA PLAYER
+════════════════════════════════ */
+.media-player__cover {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  background: var(--bg-overlay);
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.media-player__pause-overlay {
+  border-radius: var(--r-sm);
+  background: rgba(0, 0, 0, 0.5);
+  min-width: 28px;
+  min-height: 28px;
+}
+
+.media-player__pause-overlay image {
+  color: white;
+  opacity: 0.9;
+}
+
+progressbar.media-player__progress,
+progressbar.media-player__progress trough,
+progressbar.media-player__progress trough progress {
+  min-height: 3px;
+}
+
+progressbar.media-player__progress trough {
+  border-radius: 2px;
+  background: var(--border-subtle);
+}
+
+progressbar.media-player__progress trough progress {
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.media-player__visualizer {
+  border-radius: var(--r-sm);
+  background: transparent;
+}

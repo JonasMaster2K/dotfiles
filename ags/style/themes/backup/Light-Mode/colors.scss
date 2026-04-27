@@ -1,0 +1,78 @@
+/* ══════════════════════════════
+   THEME VARIABLES — Nordic Blue Light
+══════════════════════════════ */
+:root {
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrainsMono Nerd Font', monospace;
+  --text-xs:  10px;
+  --text-sm:  12px;
+  --text-md:  14px;
+  --text-lg:  18px;
+  --text-xl:  24px;
+  --text-2xl: 32px;
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-bold:   700;
+  --leading-tight:  1.3;
+  --leading-normal: 1.6;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+/* ── Backgrounds ── helles blaugrau, kein reines weiß */
+  --bg-base:     #eceff4;
+  --bg-surface:  #e5e9f0;
+  --bg-elevated: #d8dee9;
+  --bg-overlay:  #c8d0e0;
+  --bg-hover:    #b8c4d8;
+
+/* ── Borders ── */
+  --border-subtle:  #d8dee9;
+  --border-default: #c8d0e0;
+  --border-strong:  #8898b8;
+
+/* ── Text ── dunkelblau statt schwarz, augenschonend */
+  --text-primary:   #2e3440;
+  --text-secondary: #434c5e;
+  --text-tertiary:  #8898b8;
+  --text-disabled:  #c8d0e0;
+  --text-inverse:   #eceff4;
+
+/* ── Accent · Ocean Blue ── */
+  --accent:          #5e81ac;
+  --accent-muted:    #c8d8ec;
+  --accent-hover:    #4e71a0;
+  --accent-subtle:   #dce8f4;
+  --accent-selected: #c0d4ec;
+
+/* ── Semantic colors ── */
+  --ok:           #4c7a3e;
+  --ok-muted:     #d8edcc;
+  --warn:         #8a6a10;
+  --warn-muted:   #f4e8c0;
+  --err:          #9a2f38;
+  --err-muted:    #f4d0d4;
+  --info:         #5e81ac;
+  --info-muted:   #dce8f4;
+  --purple:       #7c5c9a;
+  --purple-muted: #e8dcf4;
+
+/* ── Radii ── */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+
+/* ── Shadows ── */
+  --shadow-sm: 0 1px 4px rgba(46,52,64,0.12);
+  --shadow-md: 0 4px 16px rgba(46,52,64,0.15);
+  --shadow-lg: 0 8px 32px rgba(46,52,64,0.18);
+
+/* ── Motion ── */
+  --duration-fast:   100ms;
+  --duration-normal: 200ms;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}

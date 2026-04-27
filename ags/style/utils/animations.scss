@@ -1,0 +1,33 @@
+/* ════════════════════════════════
+   UTILS — Animations
+════════════════════════════════ */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-down {
+  from { transform: translateY(-4px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(4px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.anim--spin     { animation: spin 1s linear infinite; }
+.anim--fade-in  { animation: fade-in var(--duration-fast) var(--ease); }
+.anim--slide    { animation: slide-down var(--duration-fast) var(--ease); }
+.anim--slide-up { animation: slide-up var(--duration-fast) var(--ease); }
+.anim--pulse    { animation: pulse 2s ease-in-out infinite; }

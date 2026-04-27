@@ -1,0 +1,66 @@
+/* ════════════════════════════════
+   COMPONENT — Input
+════════════════════════════════ */
+
+/* Text entry */
+.entry--default {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: var(--space-1) var(--space-2);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  transition: border-color var(--duration-fast) var(--ease);
+}
+
+.entry--default:focus {
+  border-color: var(--accent-muted);
+}
+
+/* Scale / slider */
+scale.scale--default {
+  margin: 0 0 var(--space-1);
+}
+
+scale.scale--default trough {
+  background: var(--bg-overlay);
+  border-radius: var(--r-sm);
+  min-height: 4px;
+}
+
+scale.scale--default trough highlight {
+  background: var(--accent);
+  border-radius: var(--r-sm);
+}
+
+scale.scale--default slider {
+  background: var(--accent-hover);
+  border-radius: 50%;
+  min-width: 10px;
+  min-height: 10px;
+  transition: background var(--duration-fast) var(--ease);
+}
+
+scale.scale--default slider:hover {
+  background: white;
+}
+
+/* Dropdown */
+dropdown.audio-dropdown {
+  border-radius: var(--r-md);
+}
+
+dropdown.audio-dropdown > button {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  transition: border-color var(--duration-fast) var(--ease);
+}
+
+dropdown.audio-dropdown > button:hover {
+  border-color: var(--border-default);
+}
