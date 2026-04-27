@@ -10,7 +10,7 @@ fun position_sprite(sprite, x, y) {
 Window.SetBackgroundTopColor(0.180, 0.204, 0.251);   // nord0
 Window.SetBackgroundBottomColor(0.231, 0.259, 0.322); // nord1
 
-LOGO = Image("splash_Screen.png");
+LOGO = Image("splash_screen.png");
 LOGO_SPRITE = Sprite(LOGO);
 set_scaled_sprite(LOGO_SPRITE, LOGO, 1.0);
 position_sprite(LOGO_SPRITE, 0.5, 0.5);

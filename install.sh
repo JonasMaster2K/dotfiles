@@ -206,7 +206,7 @@ if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
         echo ""
         echo "==> [CORE] iio-sensor-proxy & Autorotation"
         pacman_install iio-sensor-proxy
-        paru_install iio-hyprland
+        paru_install iio-hyprland-git
 
         echo ""
         echo "==> [CORE] Tablet mode"
@@ -293,7 +293,7 @@ if $PARU && confirm "EXTRA — Theming (ags, wlogout, nordzy-cursors, tokyonight
 fi
 
 # ── Splash screen (nur mit systemd-boot) ─────────────────
-if command -v bootctl &>/dev/null && bootctl is-installed &>/dev/null; then
+if bootctl status &>/dev/null; then
     if confirm "EXTRA — Plymouth splash screen"; then
         pacman_install plymouth
         grep -q "plymouth" /etc/mkinitcpio.conf || \
