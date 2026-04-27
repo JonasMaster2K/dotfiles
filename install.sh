@@ -24,10 +24,11 @@ NOCONFIRM=false
 DOTFILES="$(cd "$(dirname "$0")" && pwd)"
 PARU=false
 LOG="$DOTFILES/install.log"
-USER="$(whoami)"
+CURRENT_USER="$(whoami)"
 
 # ── Logging ───────────────────────────────────────────────
-exec > >(tee -a "$LOG") 2>&1
+: > "$LOG"
+exec > >(tee -a "$LOG") 2>&1> >(tee -a "$LOG") 2>&1
 echo "==> Install started: $(date)"
 
 # ── Error trap (initial, before sudo keepalive) ───────────
@@ -35,7 +36,10 @@ trap 'echo ""; echo "ERROR on line $LINENO. Check $LOG for details."; exit 1' ER
 
 # ── Helpers ───────────────────────────────────────────────
 confirm() {
-    $NOCONFIRM && echo "==> [auto] $1" && return 0
+    if $NOCONFIRM; then
+        echo "==> [auto] $1"
+        return 0
+    fi
     echo ""
     echo "==> $1"
     read -rp "    Continue? [Y/n] " yn
@@ -119,7 +123,7 @@ echo "==> [CORE] Hyprland & display stack"
 pacman_install \
     hyprland xdg-desktop-portal-hyprland \
     hypridle hyprlock hyprpicker hyprpaper hyprsunset \
-    polkit-gnome sddm jq papirus-icon-theme
+    polkit-gnome sddm jq papirus-icon-theme which wget playerctl cava
 
 require_file "$DOTFILES/sddm/sddm.conf"
 sudo cp -r "$DOTFILES/sddm/Sugar-Candy" /usr/share/sddm/themes/
@@ -162,11 +166,23 @@ if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
 
     if [[ "$PROFILE" == "galaxybook5" ]]; then
         echo ""
+        echo "==> [CORE] Samsung ACPI buttons log spam fix"
+        require_file "$DOTFILES/acpi/events/buttons"
+        sudo cp "$DOTFILES/acpi/events/buttons" /etc/acpi/events/buttons
+
+        echo ""
         echo "==> [CORE] Samsung ACPI keyboard backlight"
         require_file "$DOTFILES/acpi/samsung-kbd-backlight.sh"
         require_file "$DOTFILES/acpi/events/samsung-kbd-backlight"
         sudo install -m 755 "$DOTFILES/acpi/samsung-kbd-backlight.sh" /etc/acpi/samsung-kbd-backlight.sh
         sudo cp "$DOTFILES/acpi/events/samsung-kbd-backlight" /etc/acpi/events/samsung-kbd-backlight
+        
+        echo ""
+        echo "==> [CORE] Samsung ACPI mix mute button"
+        require_file "$DOTFILES/acpi/samsung-mic-mute.sh"
+        require_file "$DOTFILES/acpi/events/samsung-mic-mute"
+        sudo install -m 755 "$DOTFILES/acpi/samsung-mic-mute.sh" /etc/acpi/samsung-mic-mute.sh
+        sudo cp "$DOTFILES/acpi/events/samsung-mic-mute" /etc/acpi/events/samsung-mic-mute
         sudo systemctl restart acpid
 
         echo ""
@@ -174,6 +190,13 @@ if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
         require_file "$DOTFILES/udev/99-samsung-galaxybook.rules"
         sudo cp "$DOTFILES/udev/99-samsung-galaxybook.rules" /etc/udev/rules.d/
         sudo udevadm control --reload-rules
+
+        echo ""
+        echo "==> [CORE] S Pen / libwacom tablet profile"
+        pacman_install libwacom
+        require_file "$DOTFILES/libwacom/samsung-galaxy-book5-pro-360.tablet"
+        sudo cp "$DOTFILES/libwacom/samsung-galaxy-book5-pro-360.tablet" \
+            /usr/share/libwacom/samsung-galaxy-book5-pro-360.tablet
     fi
 fi
 
@@ -192,8 +215,28 @@ if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
     sudo_safe_link "$DOTFILES/logind/power.conf" /etc/systemd/logind.conf.d/power.conf
 fi
 
+# ── CORE 6: AUR ────────────────────────────────────────────
+echo ""
+echo "==> [CORE] Install AUR package-manager: Paru"
+if ! command -v paru &>/dev/null; then
+    pacman_install rust base-devel
+    [[ -d /tmp/paru ]] && rm -rf /tmp/paru
+    git clone https://aur.archlinux.org/paru.git /tmp/paru
+    cd /tmp/paru && makepkg -si --noconfirm && cd "$DOTFILES"
+    PARU=true
+else
+    echo "==> paru already installed."
+    PARU=true
+fi
 
-# ── CORE 6: Dotfile Links ─────────────────────────────────
+# ── CORE 7: AGS-Shell ────────────────────────────────────────────
+echo ""
+echo "==> [CORE] Install AGS-Shell"
+if $PARU; then
+    paru_install aylurs-gtk-shell-git libastal-meta swayosd-git wlogout
+fi
+
+# ── CORE 8: Dotfile Links ─────────────────────────────────
 echo ""
 echo "==> [CORE] Link dotfile configs"
 if command -v xdg-user-dirs-update &>/dev/null; then
@@ -203,7 +246,7 @@ else
 fi
 
 sudo_safe_link "$DOTFILES/sddm/sddm.conf" /etc/sddm.conf
-sudo sed -i "s/^User=.*/User=$USER/" /etc/sddm.conf
+sudo sed -i.bak "s/^User=.*/User=$CURRENT_USER/" /etc/sddm.conf
 
 safe_link "$DOTFILES/hypr/hyprland.conf"                       ~/.config/hypr/hyprland.conf
 safe_link "$DOTFILES/hypr/hyprpaper.conf"                      ~/.config/hypr/hyprpaper.conf
@@ -221,8 +264,17 @@ safe_link "$DOTFILES/xdg-desktop-portal/hyprland-portals.conf" ~/.config/xdg-des
 # ║  EXTRAS — Mit confirm                                   ║
 # ╚══════════════════════════════════════════════════════════╝
 
+if $PARU && confirm "EXTRA — Theming (ags, wlogout, nordzy-cursors, tokyonight-theme)"; then
+    paru_install aylurs-gtk-shell-git libastal-meta swayosd-git wlogout \
+        nordzy-cursors tokyonight-gtk-theme-git
+
+    if command -v wlogout &>/dev/null; then
+        safe_link "$DOTFILES/wlogout/layout" ~/.config/wlogout/layout
+    fi
+fi
+
 # ── Splash screen (nur mit systemd-boot) ─────────────────
-if bootctl status &>/dev/null; then
+if command -v bootctl &>/dev/null && bootctl is-installed &>/dev/null; then
     if confirm "EXTRA — Plymouth splash screen"; then
         pacman_install plymouth
         grep -q "plymouth" /etc/mkinitcpio.conf || \
@@ -271,8 +323,8 @@ fi
 
 
 # ── Fonts ─────────────────────────────────────────────────
-if confirm "EXTRA — Fonts (JetBrains Nerd, Noto)"; then
-    pacman_install ttf-jetbrains-mono-nerd noto-fonts-emoji
+if confirm "EXTRA — Fonts (JetBrains Nerd-Font, Inter-Font, Noto-Emojis)"; then
+    pacman_install ttf-jetbrains-mono-nerd noto-fonts-emoji inter-font
 fi
 
 
@@ -300,20 +352,26 @@ if confirm "EXTRA — Programming languages"; then
     confirm "DEV — Java (jdk21-openjdk)"             && pacman_install jdk21-openjdk
     confirm "DEV — Kotlin"                           && pacman_install kotlin
     confirm "DEV — Go"                               && pacman_install go
-    confirm "DEV — Node.js / TypeScript"             && pacman_install nodejs npm && npm install -g typescript
+    confirm "DEV — Node.js / TypeScript"             && pacman_install nodejs npm && npm config set prefix ~/.local && npm install -g typescript
     confirm "DEV — Python"                           && pacman_install python python-pip
     confirm "DEV — PHP"                              && pacman_install php
     confirm "DEV — Lua"                              && pacman_install lua
     confirm "DEV — Zig"                              && pacman_install zig
 fi
 
+# ── Extra Tools ───────────────────────────────────────────
 if confirm "EXTRA — Tools"; then
     confirm "Obsidian"   && pacman_install obsidian
     confirm "Email"      && pacman_install thunderbird
     confirm "Backup"     && pacman_install timeshift
     confirm "Antivirus"  && pacman_install clamtk
-    confirm "Airdrop"    && paru_install localsend-bin
-    confirm "Firewall"   && paru_install portmaster-bin
+    if $PARU; then
+        confirm "Airdrop"       && paru_install localsend-bin
+        confirm "Firewall"      && paru_install portmaster-bin
+        confirm "Zen-Browser"   && paru_install zen-browser-bin
+        confirm "VS-Codium"     && paru_install vscodium-bin
+        confirm "Spotify"       && paru_install spotify
+    fi
 fi
 
 # ── Samsung Galaxy Book5 Extras ───────────────────────────
@@ -334,31 +392,6 @@ if [[ "$PROFILE" == "galaxybook5" ]]; then
     fi
 fi
 
-
-# ── AUR ───────────────────────────────────────────────────
-if ! command -v paru &>/dev/null; then
-    if confirm "EXTRA — Install paru (AUR helper)"; then
-        pacman_install rust base-devel
-        [[ -d /tmp/paru ]] && rm -rf /tmp/paru
-        git clone https://aur.archlinux.org/paru.git /tmp/paru
-        cd /tmp/paru && makepkg -si && cd "$DOTFILES"
-        PARU=true
-    fi
-else
-    echo "==> paru already installed."
-    PARU=true
-fi
-
-if $PARU && confirm "EXTRA — AUR packages (zen-browser, vscodium, spotify, ags, wlogout, nordzy-cursors, tokyonight-theme)"; then
-    paru_install zen-browser-bin vscodium-bin spotify \
-        aylurs-gtk-shell-git libastal-meta swayosd-git wlogout \
-        nordzy-cursors tokyonight-gtk-theme-git
-
-    if command -v wlogout &>/dev/null; then
-        safe_link "$DOTFILES/wlogout/layout" ~/.config/wlogout/layout
-    fi
-fi
-
 # ── GTK Theme, Icons, Cursor ──────────────────────────────
 if confirm "EXTRA — Apply GTK theme, icons & cursor"; then
     mkdir -p ~/.config/gtk-3.0
@@ -376,6 +409,7 @@ INI
     gsettings set org.gnome.desktop.interface cursor-theme "Nordzy-cursors"
     gsettings set org.gnome.desktop.interface cursor-size  24
     gsettings set org.gnome.desktop.interface font-name    "JetBrainsMono Nerd Font 11"
+    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
 fi
 
 

@@ -1,0 +1,10 @@
+[Device]
+Name=Samsung Galaxy Book5 Pro 360
+DeviceMatch=i2c|2d1f|0230
+Class=ISDV4
+Width=13
+Height=9
+IntegratedIn=Display;System
+
+[Features]
+Stylus=true
