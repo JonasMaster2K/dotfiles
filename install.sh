@@ -183,7 +183,6 @@ if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
         require_file "$DOTFILES/acpi/events/samsung-mic-mute"
         sudo install -m 755 "$DOTFILES/acpi/samsung-mic-mute.sh" /etc/acpi/samsung-mic-mute.sh
         sudo cp "$DOTFILES/acpi/events/samsung-mic-mute" /etc/acpi/events/samsung-mic-mute
-        sudo systemctl restart acpid
 
         echo ""
         echo "==> [CORE] Battery charge threshold (80%)"
@@ -197,6 +196,20 @@ if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
         require_file "$DOTFILES/libwacom/samsung-galaxy-book5-pro-360.tablet"
         sudo cp "$DOTFILES/libwacom/samsung-galaxy-book5-pro-360.tablet" \
             /usr/share/libwacom/samsung-galaxy-book5-pro-360.tablet
+
+        echo ""
+        echo "==> [CORE] Intel ISH Firmware für Tablet Mode"
+        require_file "$DOTFILES/driver/ish_lnlm_053dca6a.bin"
+        sudo cp "$DOTFILES/driver/ish_lnlm_053dca6a.bin" /lib/firmware/intel/ish/
+
+        echo ""
+        echo "==> [CORE] Tablet mode"
+        require_file "$DOTFILES/acpi/events/tablet-mode"
+        require_file "$DOTFILES/acpi/tablet-mode.sh"
+        sudo install -m 755 "$DOTFILES/acpi/tablet-mode.sh" /etc/acpi/tablet-mode.sh
+        sudo cp "$DOTFILES/acpi/events/tablet-mode" /etc/acpi/events/tablet-mode
+
+        sudo systemctl restart acpid
     fi
 fi
 
@@ -405,7 +418,7 @@ gtk-font-name=JetBrainsMono Nerd Font 11
 INI
 
     gsettings set org.gnome.desktop.interface gtk-theme    "Tokyonight-Dark"
-    safe_link "$DOTFILES/LunaIcons" /usr/share/icons
+    sudo_safe_link "$DOTFILES/LunaIcons" /usr/share/icons/LunaIcons
     gsettings set org.gnome.desktop.interface icon-theme   "LunaIcons"
     gsettings set org.gnome.desktop.interface cursor-theme "Nordzy-cursors"
     gsettings set org.gnome.desktop.interface cursor-size  24
