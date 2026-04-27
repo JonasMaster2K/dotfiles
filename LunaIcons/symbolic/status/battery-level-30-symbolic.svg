@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   xmlns="http://www.w3.org/2000/svg">
+  <path
+     opacity="0.35"
+     fill="currentColor"
+     d="M 6,1 V 2 H 3 v 12 c 0,0.55 0.446,1 1,1 h 8 c 0.554,0 1,-0.45 1,-1 V 2 H 10 V 1 Z"
+     id="path1" />
+  <path
+     fill="currentColor"
+     d="m 3,10 v 4 c 0,0.55 0.446,1 1,1 h 8 c 0.554,0 1,-0.45 1,-1 v -4 z"
+     id="path2" />
+</svg>

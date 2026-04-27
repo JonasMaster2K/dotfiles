@@ -405,7 +405,8 @@ gtk-font-name=JetBrainsMono Nerd Font 11
 INI
 
     gsettings set org.gnome.desktop.interface gtk-theme    "Tokyonight-Dark"
-    gsettings set org.gnome.desktop.interface icon-theme   "Papirus-Dark"
+    safe_link "$DOTFILES/LunaIcons" /usr/share/icons
+    gsettings set org.gnome.desktop.interface icon-theme   "LunaIcons"
     gsettings set org.gnome.desktop.interface cursor-theme "Nordzy-cursors"
     gsettings set org.gnome.desktop.interface cursor-size  24
     gsettings set org.gnome.desktop.interface font-name    "JetBrainsMono Nerd Font 11"
