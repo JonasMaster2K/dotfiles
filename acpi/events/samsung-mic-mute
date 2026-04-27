@@ -1,0 +1,2 @@
+event=samsung-galaxybook SAM0430:00 0000006e
+action=/etc/acpi/samsung-mic-mute.sh
