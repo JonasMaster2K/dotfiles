@@ -1,106 +1,104 @@
 import { Gtk } from "ags/gtk4"
-import GLib from "gi://GLib?version=2.0"
 import Usage from "../../services/SystemInfoService"
+import TaskBarIconButton from "../../components/BarButton"
 
 const usage = Usage.get_default()
 
-const bytesToGB = (bytes: number, decimals = 1) =>
-    (bytes / 1073741824).toFixed(decimals)
+const bytesToGB = (bytes: number) => (bytes / 1073741824).toFixed(1)
 
-const formatNet = (bytes: number) =>
-    bytes > 1000000 ? `${(bytes / 1000000).toFixed(1)}MB/s`
-    : bytes > 1000  ? `${(bytes / 1000).toFixed(0)}KB/s`
-    : `${bytes}B/s`
-
-function MetaLabel() {
-    return <label css_classes={["label--meta"]} valign={Gtk.Align.CENTER} /> as Gtk.Label
+const formatNet = (bytes: number) => {
+    if (bytes > 1000000) return `${(bytes / 1000000).toFixed(1)}MB/s`
+    if (bytes > 1000) return `${(bytes / 1000).toFixed(0)}KB/s`
+    return `${bytes}B/s`
 }
 
-function Sep() {
-    return <label css_classes={["text--tertiary"]} label="|" valign={Gtk.Align.CENTER} />
-}
+function createStat(iconName: string): [Gtk.Box, Gtk.Label] {
+    const box = new Gtk.Box({ 
+        spacing: 4, 
+        valign: Gtk.Align.CENTER 
+    })
+    
+    const icon = new Gtk.Image({ 
+        icon_name: iconName, 
+        pixel_size: 14,
+        css_classes: ["icon--secondary"] 
+    })
+    
+    const label = new Gtk.Label({ 
+        css_classes: ["label--meta"],
+        valign: Gtk.Align.CENTER 
+    })
 
-function StatBox({ icon, label, isIcon = false }: { icon: string, label: Gtk.Label, isIcon?: boolean }) {
-    return (
-        <box spacing={4} valign={Gtk.Align.CENTER}>
-            {isIcon
-                ? <image css_classes={["icon--secondary"]} icon_name={icon} pixel_size={14} valign={Gtk.Align.CENTER} />
-                : <label css_classes={["text--primary"]} label={icon} valign={Gtk.Align.CENTER} />
-            }
-            {label}
-        </box>
-    )
+    box.append(icon)
+    box.append(label)
+    
+    return [box, label]
 }
 
 export default function SysInfoWidget(): Gtk.Widget {
-    const netRxLabel   = MetaLabel()
-    const netTxLabel   = MetaLabel()
-    const cpuLabel     = MetaLabel()
-    const cpuTempLabel = MetaLabel()
-    const memLabel     = MetaLabel()
+    const btn = new TaskBarIconButton({ iconName: "computer-symbolic" })
+
+    const wrapper = new Gtk.Box({ visible: false })
+    const revealer = new Gtk.Revealer({
+        transition_type: Gtk.RevealerTransitionType.SLIDE_RIGHT,
+        reveal_child: false,
+        valign: Gtk.Align.CENTER,
+    })
+    
+    const statsContainer = new Gtk.Box({ 
+        spacing: 12, 
+        hexpand: true 
+    })
+
+    const [netRxBox, netRxLabel] = createStat("network-receive-symbolic")
+    const [netTxBox, netTxLabel] = createStat("network-transmit-symbolic")
+    const [cpuBox, cpuLabel]     = createStat("cpu-symbolic")
+    const [tempBox, tempLabel]   = createStat("sensors-temperature-symbolic")
+    const [memBox, memLabel]     = createStat("ram-symbolic")
+
+    const allBoxes: Gtk.Box[] = [netRxBox, netTxBox, cpuBox, tempBox, memBox]
+    allBoxes.forEach(box => statsContainer.append(box))
+    
+    revealer.set_child(statsContainer)
+    wrapper.append(revealer)
+    btn.content.append(wrapper)
 
     const updateMem = () => {
-        memLabel.label = `${bytesToGB(usage.memoryTotal - usage.memoryAvailable)}/${bytesToGB(usage.memoryTotal)}GB`
+        const used = usage.memoryTotal - usage.memoryAvailable
+        memLabel.label = `${bytesToGB(used)}/${bytesToGB(usage.memoryTotal)}GB`
     }
 
-    usage.connect("notify::net-rx",           () => netRxLabel.label   = formatNet(usage.netRx))
-    usage.connect("notify::net-tx",           () => netTxLabel.label   = formatNet(usage.netTx))
-    usage.connect("notify::cpu-usage",        () => cpuLabel.label     = `${Math.round(usage.cpuUsage * 100)}%`)
-    usage.connect("notify::cpu-temp",         () => cpuTempLabel.label = usage.cpuTemp > 0 ? `${usage.cpuTemp}°C` : `--°C`)
-    usage.connect("notify::memory-total",     updateMem)
-    usage.connect("notify::memory-available", updateMem)
+    const updateAll = () => {
+        netRxLabel.label = formatNet(usage.netRx)
+        netTxLabel.label = formatNet(usage.netTx)
+        cpuLabel.label   = `${Math.round(usage.cpuUsage * 100)}%`
+        tempLabel.label  = usage.cpuTemp > 0 ? `${usage.cpuTemp}°C` : `--°C`
+        updateMem()
+    }
 
-    netRxLabel.label   = formatNet(usage.netRx)
-    netTxLabel.label   = formatNet(usage.netTx)
-    cpuLabel.label     = `${Math.round(usage.cpuUsage * 100)}%`
-    cpuTempLabel.label = usage.cpuTemp > 0 ? `${usage.cpuTemp}°C` : `--°C`
-    updateMem()
+    usage.connect("notify::net-rx",           () => { netRxLabel.label = formatNet(usage.netRx) })
+    usage.connect("notify::net-tx",           () => { netTxLabel.label = formatNet(usage.netTx) })
+    usage.connect("notify::cpu-usage",        () => { cpuLabel.label = `${Math.round(usage.cpuUsage * 100)}%` })
+    usage.connect("notify::cpu-temp",         () => { tempLabel.label = usage.cpuTemp > 0 ? `${usage.cpuTemp}°C` : `--°C` })
+    usage.connect("notify::memory-available", () => { updateMem() })
 
-    let isRevealed = false
+    revealer.connect("notify::child-revealed", () => {
+        if (!revealer.reveal_child && !revealer.child_revealed) {
+            wrapper.visible = false
+        }
+    })
 
-    const revealer = (
-        <revealer
-            transition_type={Gtk.RevealerTransitionType.SLIDE_LEFT}
-            reveal_child={false}
-            visible={false}
-            margin_end={4}
-            valign={Gtk.Align.CENTER}
-            vexpand={false}
-        >
-            <box valign={Gtk.Align.CENTER} spacing={7}>
-                <StatBox icon="network-receive-symbolic"     label={netRxLabel}   isIcon />
-                <StatBox icon="network-transmit-symbolic"    label={netTxLabel}   isIcon />
-                <Sep />
-                <StatBox icon="cpu-symbolic"                 label={cpuLabel}     isIcon />
-                <StatBox icon="sensors-temperature-symbolic" label={cpuTempLabel} isIcon />
-                <Sep />
-                <StatBox icon="ram-symbolic"                 label={memLabel}     isIcon />
-            </box>
-        </revealer>
-    ) as Gtk.Revealer
+    btn.connect("clicked", () => {
+        if (!revealer.reveal_child) {
+            updateAll()
+            wrapper.visible = true
+            revealer.reveal_child = true
+        } else {
+            revealer.reveal_child = false
+        }
+    })
 
-    const btn = (
-        <button
-            css_classes={["statusbar-widget"]}
-            valign={Gtk.Align.CENTER}
-            onClicked={() => {
-                isRevealed = !isRevealed
-                if (isRevealed) revealer.visible = true
-                revealer.reveal_child = isRevealed
-                if (!isRevealed) {
-                    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
-                        revealer.visible = false
-                        return GLib.SOURCE_REMOVE
-                    })
-                }
-            }}
-        >
-            <box spacing={6} valign={Gtk.Align.CENTER} margin_start={3} margin_end={3}>
-                {revealer}
-                <image icon_name="computer-symbolic" pixel_size={16} valign={Gtk.Align.CENTER} />
-            </box>
-        </button>
-    )
+    updateAll()
 
-    return btn as Gtk.Button
+    return btn as Gtk.Widget
 }

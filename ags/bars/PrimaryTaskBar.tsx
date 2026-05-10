@@ -50,34 +50,31 @@ export default function PrimaryBar(monitor: Gdk.Monitor): Astal.Window {
 
     // --- Left ---
     const left = new Gtk.Box({ halign: Gtk.Align.START, hexpand: true })
-    append(left, workspaces)
+    append(left, power)
+    append(left, homeMenu)
+    append(left, systemTray)
+    append(left, updates)
+    append(left, sysInfo)
     left.append(new Gtk.Separator())
-    append(left, mediaPlayer)
-    left.append(new Gtk.Separator())
-    left.append(new Gtk.Box({width_request: 4}))
     append(left, pomodoro)
+    append(left, mediaPlayer)
 
     // --- Center ---
     const center = new Gtk.Box({ halign: Gtk.Align.CENTER, valign: Gtk.Align.CENTER })
-    append(center, clock)
-
+    append(center, workspaces)
     // --- Right ---
     const right = new Gtk.Box({ halign: Gtk.Align.END, hexpand: true })
-    //append(right, updates)
-    //append(right, sysInfo)
-    //right.append(new Gtk.Separator())
-    //append(right, colorPicker)
+    append(right, colorPicker)
     append(right, screenshot)
-    //append(right, darkMode)
-    //append(right, notifications)
+    append(right, darkMode)
+    right.append(new Gtk.Separator())
+    append(right, notifications)
     append(right, audio)
     append(right, network)
     append(right, bluetooth)
     append(right, battery)
-    //append(right, systemTray)
-    //right.append(new Gtk.Separator())
-    //append(right, power)
-    //append(right, homeMenu)
+    right.append(new Gtk.Separator())
+    append(right, clock)
 
     // --- Layout ---
     const outerBox = new Gtk.Box({ hexpand: true })

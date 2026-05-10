@@ -123,7 +123,7 @@ echo "==> [CORE] Hyprland & display stack"
 pacman_install \
     hyprland xdg-desktop-portal-hyprland \
     hypridle hyprlock hyprpicker hyprpaper hyprsunset \
-    polkit-gnome sddm jq papirus-icon-theme which wget playerctl cava
+    polkit-gnome sddm jq papirus-icon-theme which wget playerctl cava mousepad
 
 require_file "$DOTFILES/sddm/sddm.conf"
 sudo cp -r "$DOTFILES/sddm/Sugar-Candy" /usr/share/sddm/themes/

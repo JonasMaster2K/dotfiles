@@ -22,11 +22,11 @@ export default function MediaPlayerWidget(barHight: number): Gtk.Widget {
     // STRUCTURE
     // ═══════════════════════════════════════
 
-    const btn = new BarButton({ minWidth: -1 })
+    const btn = new BarButton({ })
 
     // — Revealer (whole widget) —
     const revealer = new Gtk.Revealer({
-        transition_duration: 200,
+        transition_duration: 300,
         transitionType: Gtk.RevealerTransitionType.SWING_RIGHT,
         revealChild: false,
     })
@@ -218,13 +218,24 @@ export default function MediaPlayerWidget(barHight: number): Gtk.Widget {
         update()
         updateProgress()
         updateVisualizer()
-        setVisible(true)
     }
+
+    revealer.connect("notify::child-revealed", () => {
+        if (!revealer.child_revealed && mpris.get_players().length === 0) {
+            btn.visible = false;
+        }
+    });
 
     // — MPRIS connections —
     if (mpris.players[0]) bindPlayer(mpris.players[0])
 
-    mpris.connect("player-added",  (_: any, p: AstalMpris.Player) => bindPlayer(p))
+    mpris.connect("player-added",  (_: any, p: AstalMpris.Player) => {
+        bindPlayer(p)
+        if(!btn.visible) {
+            btn.visible = true
+            setVisible(true)
+        }
+    })
     mpris.connect("player-closed", () => {
         disconnectPlayer()
         player = mpris.players[0] ?? null
@@ -252,6 +263,8 @@ export default function MediaPlayerWidget(barHight: number): Gtk.Widget {
 
     btn.connect("clicked",  () => popup.popup())
     btn.connect("destroy",  () => { disconnectPlayer(); visualizer.stop() })
+
+    mpris.get_players().length > 0 ? btn.visible = true : btn.visible = false
 
     return btn
 }

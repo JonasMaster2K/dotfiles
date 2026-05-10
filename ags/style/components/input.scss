@@ -1,8 +1,11 @@
 /* ════════════════════════════════
-   COMPONENT — Input
-════════════════════════════════ */
+   INPUT — Unified Nordic Dark Style
+   ════════════════════════════════ */
 
-/* Text entry */
+/* ────────────────────────────────
+   TEXT ENTRY
+   ──────────────────────────────── */
+
 .entry--default {
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
@@ -11,42 +14,84 @@
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  transition: border-color var(--duration-fast) var(--ease);
+  transition: border-color var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease);
+}
+
+.entry--default:hover {
+  border-color: var(--border-default);
 }
 
 .entry--default:focus {
-  border-color: var(--accent-muted);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-muted);
 }
 
-/* Scale / slider */
+
+/* ════════════════════════════════
+   SCALE — Nordic Modern (Switch‑Style)
+   ════════════════════════════════ */
+
 scale.scale--default {
-  margin: 0 0 var(--space-1);
+  margin: var(--space-2) 0;
+  min-height: 26px;
+  min-width: 140px;
 }
 
+/* Trough: glatt, modern, wie Switch-Hintergrund */
 scale.scale--default trough {
   background: var(--bg-overlay);
-  border-radius: var(--r-sm);
-  min-height: 4px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  min-height: 8px;
+  transition: background var(--duration-fast) var(--ease),
+              border-color var(--duration-fast) var(--ease);
 }
 
+/* Hover: gleiche Logik wie Switch */
+scale.scale--default:hover trough {
+  background: var(--bg-elevated);
+  border-color: var(--border-default);
+}
+
+/* Highlight: gleiche Accent-Farbwelt wie Switch */
 scale.scale--default trough highlight {
   background: var(--accent);
-  border-radius: var(--r-sm);
+  border-radius: 999px;
 }
 
-scale.scale--default slider {
-  background: var(--accent-hover);
-  border-radius: 50%;
-  min-width: 10px;
-  min-height: 10px;
-  transition: background var(--duration-fast) var(--ease);
+/* Slider: kleiner, cleaner, wie Switch-Knopf */
+scale.scale--default trough slider {
+  background: var(--nord6);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  min-width: 14px;
+  min-height: 14px;
+  margin: -3px 0; /* perfekt zentriert */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+  transition: transform var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease),
+              border-color var(--duration-fast) var(--ease);
 }
 
-scale.scale--default slider:hover {
-  background: white;
+/* Hover: identisch zum Switch */
+scale.scale--default:hover trough slider {
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.45);
 }
 
-/* Dropdown */
+/* Active: identisch zum Switch */
+scale.scale--default:active trough slider {
+  transform: scale(0.9);
+}
+
+
+
+/* ════════════════════════════════
+   DROPDOWN
+   ════════════════════════════════ */
+
 dropdown.audio-dropdown {
   border-radius: var(--r-md);
 }
@@ -58,9 +103,61 @@ dropdown.audio-dropdown > button {
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  transition: border-color var(--duration-fast) var(--ease);
+  padding: var(--space-1) var(--space-2);
+  transition: border-color var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease);
 }
 
 dropdown.audio-dropdown > button:hover {
   border-color: var(--border-default);
+}
+
+dropdown.audio-dropdown > button:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-muted);
+}
+
+
+/* ════════════════════════════════
+   SWITCH — Nordic Modern
+   ════════════════════════════════ */
+
+switch {
+  min-width: 32px;
+  min-height: 18px;
+  padding: 0;
+  border-radius: 999px;
+  background: var(--bg-overlay);
+  border: 1px solid var(--border-subtle);
+  transition: background var(--duration-fast) var(--ease),
+              border-color var(--duration-fast) var(--ease);
+}
+
+switch:hover {
+  border-color: var(--border-default);
+}
+
+switch:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+switch > slider {
+  min-width: 14px;
+  min-height: 14px;
+  margin: 2px;
+  border-radius: 999px;
+  background: var(--nord6);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+  transition: transform var(--duration-fast) var(--ease),
+              box-shadow var(--duration-fast) var(--ease);
+}
+
+switch:hover > slider {
+  transform: scale(1.1);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.45);
+}
+
+switch:active > slider {
+  transform: scale(0.9);
 }

@@ -1,299 +1,238 @@
 import GObject from "gi://GObject?version=2.0"
 import GLib from "gi://GLib?version=2.0"
 
-export type PomodoroPhase = "work" | "short-break" | "long-break" | "idle"
+type PomodoroPhase = "work" | "short-break" | "long-break" | "idle"
 
-export interface PomodoroConfig {
-    workDuration?:       number
-    shortBreakDuration?: number
-    longBreakDuration?:  number
-    sessionsUntilLong?:  number
-    sessionsPerBlock?:   number
-    autoStart?:          boolean
+/**
+ * Hilfsfunktion zur Begrenzung von Werten
+ */
+function clamp(x: number, min: number, max: number): number { 
+    return Math.max(min, Math.min(x, max)); 
 }
 
 export default class PomodoroTimer extends GObject.Object {
-    //GObject registration
-    static {
+    static{
         GObject.registerClass({
             GTypeName: "PomodoroTimer",
             Signals: {
-                "tick":              {},
-                "started":           {},
-                "paused":            {},
-                "reset":             {},
-                "phase-changed":     { param_types: [GObject.TYPE_STRING] },
-                "phase-completed":   { param_types: [GObject.TYPE_STRING] },
-                "session-completed": {},
-                "block-completed":   {},
-                "target-reached":    {},
-                "config-changed":    {},
+                "timer-started": {},
+                "timer-stopped": {},
+                "phase-changed": {},
+                "reset":         {},
             },
             Properties: {
-                "running":   GObject.ParamSpec.boolean("running",   "", "", GObject.ParamFlags.READABLE, false),
-                "phase":     GObject.ParamSpec.string( "phase",     "", "", GObject.ParamFlags.READABLE, "work"),
-                "remaining": GObject.ParamSpec.int(    "remaining", "", "", GObject.ParamFlags.READABLE, 0, 99999, 25 * 60),
-                "icon-name": GObject.ParamSpec.string( "icon-name", "", "", GObject.ParamFlags.READABLE, "tomato-symbolic"),
-            },
+                "running": GObject.ParamSpec.boolean(
+                    "running", "Running", "Whether the timer is running", 
+                    GObject.ParamFlags.READABLE, false
+                ),
+                "phase": GObject.ParamSpec.string(
+                    "phase", "Phase", "Current pomodoro phase", 
+                    GObject.ParamFlags.READABLE, "idle"
+                ),
+                "remaining": GObject.ParamSpec.int(
+                    "remaining", "Remaining", "Seconds remaining in phase", 
+                    GObject.ParamFlags.READABLE, 0, 999999, 0
+                ),
+                "work-session-time-sec": GObject.ParamSpec.int(
+                    "work-session-time-sec", "Work Duration", "Duration of work session",
+                    GObject.ParamFlags.READWRITE, 1500, 3000, 1500
+                ),
+                "short-break-time-sec": GObject.ParamSpec.int(
+                    "short-break-time-sec", "Short Break Duration", "Duration of short break",
+                    GObject.ParamFlags.READWRITE, 300, 600, 300
+                ),
+                "long-break-time-sec": GObject.ParamSpec.int(
+                    "long-break-time-sec", "Long Break Duration", "Duration of long break",
+                    GObject.ParamFlags.READWRITE, 900, 1800, 900
+                ),
+                "long-break-trigger": GObject.ParamSpec.int(
+                    "long-break-trigger", "Long Break Trigger", "Work sessions before long break",
+                    GObject.ParamFlags.READWRITE, 2, 4, 4
+                ),
+                "icon-name": GObject.ParamSpec.string (
+                    "icon-name", "Icon Name", "Name of the current phase icon", 
+                    GObject.ParamFlags.READABLE, "com.github.tomatoers.tomato"
+                ),
+            }
         }, this)
     }
 
-    //Constants
-    private readonly defaultSymbol:    string = "com.github.tomatoers.tomato"
-    private readonly workSymbol:       string = "appointment-soon"
-    private readonly shortBreakSymbol: string = "weather-clear"
-    private readonly longBreakSymbol:  string = "go-home"
-    private readonly minWorkDuration:  number = 10 * 60
-    private readonly maxWorkDuration:  number = 90 * 60
-    private readonly minBreakDuration: number =  5 * 60
-    private readonly maxBreakDuration: number = 30 * 60
+    private readonly m_defaultSymbol:    string = "tomato"
+    private readonly m_workSymbol:       string = "appointment-soon"
+    private readonly m_shortBreakSymbol: string = "weather-clear"
+    private readonly m_longBreakSymbol:  string = "go-home"
 
-    //State Parameters
-    private _running              = false
-    private _phase: PomodoroPhase = "idle"
-    private _elapsed              = 0
-    private _sessionCount         = 0
-    private _totalSessions        = 0
-    private _sessionsPerBlock       = 0
-    private _targetDuration       = 0
-    private _blockCount           = 0
-    private _timer: number | null = null
-    private _waitingForConfirm    = false
-    private _iconName             = this.defaultSymbol
+    // Interne Zustandsvariablen
+    private m_running: boolean = false
+    private m_current_phase: PomodoroPhase = "idle"
+    private m_current_time: number = 0
+    private m_timer: number = 0
+    private m_work_session_count: number = 0
+    private m_long_break_trigger: number = 4
+    private m_current_icon_name: string = this.m_defaultSymbol
 
-    //Configurable Parameters
-    private _workDuration:       number
-    private _shortBreakDuration: number
-    private _longBreakDuration:  number
-    private _sessionsUntilLong:  number
-    autoStart:                   boolean
+    // Konstanten für die Validierung
+    public readonly min_work_session_time_sec = 25 * 60 
+    public readonly max_work_session_time_sec = 50 * 60 
+    public readonly min_short_break_time_sec  =  5 * 60 
+    public readonly max_short_break_time_sec  = 10 * 60 
+    public readonly min_long_break_time_sec   = 15 * 60 
+    public readonly max_long_break_time_sec   = 30 * 60 
+    public readonly min_long_break_trigger    = 2
+    public readonly max_long_break_trigger    = 4
 
-    //Constructor
-    constructor(config: PomodoroConfig = {}) {
-        super()
-        this._workDuration       = config.workDuration       ?? 25 * 60
-        this._shortBreakDuration = config.shortBreakDuration ??  5 * 60
-        this._longBreakDuration  = config.longBreakDuration  ?? 15 * 60
-        //if (config.sessionsPerBlock !== undefined) this._sessionsPerBlock = config.sessionsPerBlock
-        this._sessionsPerBlock     = config.sessionsPerBlock     ?? 0
-        this._sessionsUntilLong  = config.sessionsUntilLong  ?? (this.sessionsPerBlock < 4 && this.sessionsPerBlock > 0 ? this._sessionsPerBlock : 4)
-        this.autoStart           = config.autoStart          ?? false
+    // Dauer-Speicher
+    private m_phase_durations: Record<PomodoroPhase, number> = {
+        "work":        25 * 60,
+        "short-break": 5 * 60,
+        "long-break":  15 * 60,
+        "idle":        0,
     }
 
-    //Getter
-    get running()            { return this._running }
-    get phase()              { return this._phase }
-    get elapsed()            { return this._elapsed }
-    get remaining()          { return this.phaseDuration - this._elapsed }
-    get sessions()           { return this._sessionCount }
-    get totalSessions()      { return this._totalSessions }
-    get blockCount()         { return this._blockCount }
-    get waitingForConfirm()  { return this._waitingForConfirm }
-    get iconName()           { return this._iconName }
-    get sessionsPerBlock()     { return this._sessionsPerBlock }
-    get targetDuration()     { return this._targetDuration }
-    get workDuration()       { return this._workDuration }
-    get shortBreakDuration() { return this._shortBreakDuration }
-    get longBreakDuration()  { return this._longBreakDuration }
-    get sessionsUntilLong()  { return this._sessionsUntilLong }
+    // --- GETTER & SETTER (GObject-kompatibel) ---
 
-    get phaseDuration() {
-        if (this._phase === "work")        return this._workDuration
-        if (this._phase === "short-break") return this._shortBreakDuration
-        if (this._phase === "long-break")  return this._longBreakDuration
-        return 0
+    get icon_name(): string { console.log(this.m_current_icon_name) 
+        return this.m_current_icon_name; }
+
+    get work_session_time_sec(): number { return this.m_phase_durations["work"]; }
+    set work_session_time_sec(time: number) {
+        const val = clamp(time, this.min_work_session_time_sec, this.max_work_session_time_sec);
+        if (this.m_phase_durations["work"] !== val) {
+            this.m_phase_durations["work"] = val;
+            this.notify("work-session-time-sec");
+            if (this.m_current_phase === "work") this.notify("remaining");
+        }
     }
 
-    get fraction() {
-        return Math.min(this._elapsed / this.phaseDuration, 1)
+    get short_break_time_sec(): number { return this.m_phase_durations["short-break"]; }
+    set short_break_time_sec(time: number) {
+        const val = clamp(time, this.min_short_break_time_sec, this.max_short_break_time_sec);
+        if (this.m_phase_durations["short-break"] !== val) {
+            this.m_phase_durations["short-break"] = val;
+            this.notify("short-break-time-sec");
+            if (this.m_current_phase === "short-break") this.notify("remaining");
+        }
     }
 
-    get blockDuration() {
-        const longBreaks     = Math.floor((this._sessionsPerBlock - 1) / this._sessionsUntilLong)
-        const shortBreaks    = (this._sessionsPerBlock - 1) - longBreaks
-        const shortBreakTime = shortBreaks * this._shortBreakDuration
-        const longBreakTime  = longBreaks  * this._longBreakDuration
-        return this._sessionsPerBlock * this._workDuration + shortBreakTime + longBreakTime
+    get long_break_time_sec(): number { return this.m_phase_durations["long-break"]; }
+    set long_break_time_sec(time: number) {
+        const val = clamp(time, this.min_long_break_time_sec, this.max_long_break_time_sec);
+        if (this.m_phase_durations["long-break"] !== val) {
+            this.m_phase_durations["long-break"] = val;
+            this.notify("long-break-time-sec");
+            if (this.m_current_phase === "long-break") this.notify("remaining");
+        }
     }
 
-    //Setter
-    set workDuration(v: number) {
-        this._workDuration = v
-        this.emit("config-changed")
+    get long_break_trigger(): number { return this.m_long_break_trigger; }
+    set long_break_trigger(count: number) {
+        const val = clamp(count, this.min_long_break_trigger, this.max_long_break_trigger);
+        if (this.m_long_break_trigger !== val) {
+            this.m_long_break_trigger = val;
+            this.notify("long-break-trigger");
+        }
     }
 
-    set shortBreakDuration(v: number) {
-        this._shortBreakDuration = v
-        this.emit("config-changed")
+    get running(): boolean { return this.m_running; }
+    get phase(): PomodoroPhase { return this.m_current_phase; }
+    
+    get remaining(): number {
+        return Math.max(0, this.m_phase_durations[this.m_current_phase] - this.m_current_time);
     }
 
-    set longBreakDuration(v: number) {
-        this._longBreakDuration = v
-        this.emit("config-changed")
-    }
+    // --- ÖFFENTLICHE METHODEN ---
 
-    set sessionsUntilLong(v: number) {
-        this._sessionsUntilLong = v
-        this.emit("config-changed")
-    }
-
-    set sessionsPerBlock(v: number) {
-        this._sessionsPerBlock = v
-        this.emit("config-changed")
-    }
-
-    //Methods
-    setDuration(duration: number) {
-        const workRatio  = 25 * 60
-        const shortRatio =  5 * 60
-        const longRatio  = 15 * 60
-
-        const avgBreak = ((this._sessionsUntilLong - 1) * shortRatio + longRatio) / this._sessionsUntilLong
-        const avgSlot  = workRatio + avgBreak
-
-        const sessions   = Math.max(1, Math.round(duration / avgSlot))
-        const slotTime   = duration / sessions
-        const work       = Math.min(this.maxWorkDuration,  Math.max(this.minWorkDuration,  Math.round(slotTime * workRatio / (workRatio + shortRatio))))
-        const shortBreak = Math.min(this.maxBreakDuration, Math.max(this.minBreakDuration, Math.round(work * shortRatio / workRatio)))
-        const longBreak  = Math.min(this.maxBreakDuration, Math.max(this.minBreakDuration, shortBreak * 3))
-
-        this._targetDuration     = duration
-        this._workDuration       = work
-        this._shortBreakDuration = shortBreak
-        this._longBreakDuration  = longBreak
-        this._sessionsPerBlock   = sessions
-        this.emit("config-changed")
-    }
-
-    //Configure
-    configure(config: PomodoroConfig) {
-        if (config.workDuration       !== undefined) this.workDuration       = config.workDuration
-        if (config.shortBreakDuration !== undefined) this.shortBreakDuration = config.shortBreakDuration
-        if (config.longBreakDuration  !== undefined) this.longBreakDuration  = config.longBreakDuration
-        if (config.sessionsUntilLong  !== undefined) this.sessionsUntilLong  = config.sessionsUntilLong
-        if (config.autoStart          !== undefined) this.autoStart          = config.autoStart
-        if (config.sessionsPerBlock     !== undefined) this.sessionsPerBlock     = config.sessionsPerBlock
-    }
-
-    //Controller
-    start() {
-        if (this._running) return
-        this._running = true
-        this._waitingForConfirm = false
-        this.notify("running")
-        this._timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
-            this._elapsed++
-            this.notify("remaining")
-            this.emit("tick")
-            if (this._elapsed >= this.phaseDuration) this._completePhase()
-            return GLib.SOURCE_CONTINUE
-        })
-        this.emit("started")
-    }
-
-    pause() {
-        if (!this._running) return
-        this._running = false
-        this.notify("running")
-        if (this._timer !== null) { GLib.source_remove(this._timer); this._timer = null }
-        this.emit("paused")
-    }
-
-    toggle() { this._running ? this.pause() : this.start() }
-
-    reset() {
-        this.pause()
-        this._elapsed = 0
-        this._waitingForConfirm = false
-        this.notify("remaining")
-        this.emit("reset")
-        this.emit("tick")
-    }
-
-    resetAll() {
-        this.pause()
-        this._elapsed       = 0
-        this._sessionCount  = 0
-        this._totalSessions = 0
-        this._blockCount    = 0
-        this._phase         = "idle"
-        this._waitingForConfirm = false
-        this._updateIconName()
-        this.notify("phase")
-        this.notify("remaining")
-        this.emit("phase-changed", this._phase)
-        this.emit("reset")
-        this.emit("tick")
-    }
-
-    skipPhase() {
-        this.pause()
-        this._completePhase()
-    }
-
-    setPhase(phase: PomodoroPhase) {
-        this.pause()
-        this._phase   = phase
-        this._elapsed = 0
-        this._waitingForConfirm = false
-        this._updateIconName()
-        this.notify("phase")
-        this.notify("remaining")
-        this.emit("phase-changed", phase)
-        this.emit("tick")
-    }
-
-    private _updateIconName() {
-        const next = this._phase === "idle"        ? this.defaultSymbol
-                   : this._phase === "work"        ? this.workSymbol
-                   : this._phase === "short-break" ? this.shortBreakSymbol
-                   : this.longBreakSymbol
-        if (next === this._iconName) return
-        this._iconName = next
-        this.notify("icon-name")
-    }
-
-    private _completePhase() {
-        this.pause()
-        this.emit("phase-completed", this._phase)
-
-        if (this._phase === "work") {
-            this._sessionCount++
-            this._totalSessions++
-            this.emit("session-completed")
-            this._phase = this._sessionCount % this._sessionsUntilLong === 0
-                ? "long-break"
-                : "short-break"
-        } else if (this._phase === "long-break") {
-            this._blockCount++
-            this._phase = "work"
-            this.emit("block-completed")
-        } else {
-            this._phase = "work"
+    start(): void {
+        if (this.m_running) return;
+        
+        this.m_running = true;
+        if (this.m_current_phase === "idle") {
+            this.m_current_phase = this.m_get_next_phase();
+            this.m_current_icon_name = this.m_get_phase_icon_name(this.m_current_phase);
+            this.notify("phase");
+            this.notify("icon-name");
         }
 
-        if (this._sessionsPerBlock > 0 && this._sessionsPerBlock === this._sessionCount) {
-            this._phase             = "idle"
-            this._elapsed           = 0
-            this._sessionCount      = 0
-            this._waitingForConfirm = true
-            this._updateIconName()
-            this.notify("phase")
-            this.notify("remaining")
-            this.emit("phase-changed", this._phase)
-            this.emit("tick")
-            this.emit("target-reached")
-            return
+        this.m_timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1000, () => {
+            this.m_current_time++;
+            this.notify("remaining");
+
+            if (this.remaining <= 0) {
+                this.m_complete_phase();
+            }
+            return GLib.SOURCE_CONTINUE;
+        });
+
+        this.notify("running");
+        this.emit("timer-started");
+    }
+
+    stop(): void {
+        if (!this.m_running) return;
+
+        GLib.source_remove(this.m_timer);
+        this.m_timer = 0;
+        this.m_running = false;
+        
+        this.notify("running");
+        this.emit("timer-stopped");
+    }
+
+    toggle(): void {
+        this.m_running ? this.stop() : this.start();
+    }
+
+    skip(): void {
+        this.m_complete_phase();
+    }
+
+    reset(): void {
+        if (this.m_running) this.stop();
+        
+        this.m_current_phase = "idle";
+        this.m_current_icon_name = this.m_get_phase_icon_name(this.m_current_phase);
+        this.m_current_time = 0;
+        this.m_work_session_count = 0;
+
+        this.notify("icon-name");
+        this.notify("phase");
+        this.notify("remaining");
+        this.emit("phase-changed");
+        this.emit("reset");
+    }
+
+    // --- PRIVATE HELPER ---
+
+    private m_get_next_phase(): PomodoroPhase { 
+        if (this.m_current_phase !== "work") return "work";
+        return (this.m_work_session_count < this.m_long_break_trigger) 
+            ? "short-break" 
+            : "long-break";
+    }
+
+    private m_get_phase_icon_name(phase: PomodoroPhase): string {
+        switch(phase) {
+            case "work": return this.m_workSymbol;
+            case "short-break": return this. m_shortBreakSymbol;
+            case "long-break": return this.m_longBreakSymbol;
+            default: return this.m_defaultSymbol;
+        }
+    }
+
+    private m_complete_phase(): void {
+        if (this.m_current_phase === "work") {
+            this.m_work_session_count++;
+        } else if (this.m_current_phase === "long-break") {
+            this.m_work_session_count = 0;
         }
 
-        this._elapsed           = 0
-        this._waitingForConfirm = !this.autoStart
-        this._updateIconName()
-        this.notify("phase")
-        this.notify("remaining")
-        this.emit("phase-changed", this._phase)
-        this.emit("tick")
+        this.m_current_phase = this.m_get_next_phase();
+        this.m_current_time = 0;
+        this.m_current_icon_name = this.m_get_phase_icon_name(this.m_current_phase);
 
-        if (this.autoStart) this.start()
+        this.notify("icon-name");
+        this.notify("remaining");
+        this.notify("phase");
+        this.emit("phase-changed");
     }
 }

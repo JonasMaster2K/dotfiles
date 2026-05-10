@@ -1,36 +1,56 @@
 /* ════════════════════════════════
-   BASE — Reset
+   BASE — Safe Reset for AGS GTK4
+   Purpose: predictable layout, stable bar height
 ════════════════════════════════ */
-*:focus,
-*:focus-visible,
-button:focus,
-button:focus-visible,
-button:focus-within {
-  outline: none;
-  box-shadow: none;
-}
 
-popover.popup > contents {
-  background: transparent;
-  border: none;
-  padding: 0;
-  box-shadow: none;
-}
-
-/* ════════════════════════════════
-   GTK RESET
-════════════════════════════════ */
+/* 1. Remove default padding/margins from all widgets */
 * {
-  padding: 0;
   margin: 0;
-  min-height: 0;
-  min-width: 0;
+  padding: 0;
+  box-shadow: none;
+  background-clip: padding-box;
 }
 
+/* 2. Containers may collapse unless we allow natural size */
+box, centerbox, stack, revealer {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 3. Buttons: remove GTK defaults but keep sizing predictable */
 button {
-  padding: 0;
   margin: 0;
+  padding: 0;
   border: none;
   background: none;
   box-shadow: none;
+
+  /* Buttons should not enforce minimum sizes */
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 4. Labels: predictable text rendering */
+label {
+  padding: 0;
+  margin: 0;
+}
+
+/* 5. Images/icons: no forced padding */
+image {
+  margin: 0;
+  padding: 0;
+}
+
+/* 6. Taskbar-specific: predictable height */
+.bar, .taskbar, .panel {
+  min-height: 32px; /* oder 36px, je nach Geschmack */
+  padding: 0 var(--space-2);
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* 7. Prevent weird GTK focus outlines */
+*:focus {
+  outline: none;
 }
