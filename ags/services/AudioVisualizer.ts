@@ -2,6 +2,8 @@ import GLib from "gi://GLib?version=2.0"
 import Gio from "gi://Gio?version=2.0"
 import GObject from "gi://GObject?version=2.0"
 
+export type VisualizerAlign = "start" | "center" | "end"
+
 export default class AudioVisualizer extends GObject.Object {
     static {
         GObject.registerClass({
@@ -20,6 +22,7 @@ export default class AudioVisualizer extends GObject.Object {
     private animTimer: number | null = null
     private listeners = new Set<() => void>()
     private readonly barCount: number
+    private readonly align: VisualizerAlign // <--- HIER NEU
     private readonly BAR_RISE = 0.25
     private readonly BAR_FALL = 0.06
 
@@ -36,15 +39,18 @@ ascii_max_range = 100
 `
     }
 
-    constructor(barCount = 20) {
+    // Konstruktor erweitert um die Ausrichtung (Default ist "end" -> unten)
+    constructor(barCount = 20, align: VisualizerAlign = "end") {
         super()
         this.barCount = barCount
+        this.align    = align // <--- HIER NEU
         this.bars     = new Array(barCount).fill(0)
         this.targets  = new Array(barCount).fill(0)
     }
 
     getBars(): number[] { return this.bars }
     getBarcount(): number { return this.barCount }
+    getAlign(): VisualizerAlign { return this.align } // <--- HIER NEU
 
     subscribe(cb: () => void): () => void {
         this.listeners.add(cb)

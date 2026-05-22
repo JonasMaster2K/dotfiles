@@ -57,10 +57,10 @@ export default class PomodoroTimer extends GObject.Object {
         }, this)
     }
 
-    private readonly m_defaultSymbol:    string = "tomato"
-    private readonly m_workSymbol:       string = "appointment-soon"
-    private readonly m_shortBreakSymbol: string = "weather-clear"
-    private readonly m_longBreakSymbol:  string = "go-home"
+    private readonly m_defaultSymbol:    string = "tomato-symbolic"
+    private readonly m_workSymbol:       string = "brain-symbolic"
+    private readonly m_shortBreakSymbol: string = "coffee-symbolic"
+    private readonly m_longBreakSymbol:  string = "coffee-symbolic"
 
     // Interne Zustandsvariablen
     private m_running: boolean = false

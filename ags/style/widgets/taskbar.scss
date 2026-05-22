@@ -1,16 +1,24 @@
 /* ════════════════════════════════
-   TASKBAR
+   TASKBAR (Gedocktes 3D-Flüssigglas)
 ════════════════════════════════ */
 .taskbar {
-  background-color: var(--bg-base);
-  color: var(--text-primary);
-  font-size: var(--text-md);
+  background-color: rgba(from var(--bg-base) r g b / 0.35);
+
   padding: var(--space-1) var(--space-3);
-  border-bottom: 1px solid var(--border-strong);
+  
+  box-shadow: 
+    inset 0px -5px 8px -6px rgba(25, 25, 25, 0.75),
+    inset 0px 5px 8px -6px rgba(255, 255, 255, 0.75);
+}
+
+.taskbar > box,
+.taskbar > centerbox {
+  background-color: transparent;
+  background-image: none;
 }
 
 separator {
-  background: var(--border-strong);
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), rgba(0, 0, 0, 0.1));
   min-width: 1px;
   margin: var(--space-2) var(--space-1);
 }

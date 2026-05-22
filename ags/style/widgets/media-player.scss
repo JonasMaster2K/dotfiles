@@ -34,10 +34,5 @@ progressbar.media-player__progress trough {
 
 progressbar.media-player__progress trough progress {
   border-radius: 2px;
-  background: var(--accent);
-}
-
-.media-player__visualizer {
-  border-radius: var(--r-sm);
-  background: transparent;
+  background: var(--text-primary);
 }

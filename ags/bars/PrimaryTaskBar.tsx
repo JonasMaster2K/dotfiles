@@ -5,7 +5,6 @@ import GLib from "gi://GLib?version=2.0"
 import WorkspacesWidget   from "../features/workspace/WorkspacesWidget"
 import MediaPlayerWidget  from "../features/mediaplayer/MediaPlayerWidget"
 import ClockWidget        from "../features/clock/ClockWidget"
-import UpdateWidget       from "../features/update/UpdateWidget"
 import SysInfoWidget      from "../features/systeminfo/SystemInfoWidget"
 import ColorPickerWidget  from "../features/colorpicker/ColorPickerWidget"
 import ScreenshotWidget   from "../features/screenshot/ScreenshotWidget"
@@ -30,12 +29,11 @@ export default function PrimaryBar(monitor: Gdk.Monitor): Astal.Window {
     const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
 
     // --- Widgets ---
-    const workspaces   = WorkspacesWidget(monitor, true)
+    const workspaces   = WorkspacesWidget(monitor)
     const mediaPlayer  = MediaPlayerWidget(BARHEIGHT)
     const clock        = ClockWidget()
     const darkMode     = DarkModeToggle()
     const pomodoro     = PomodoroWidget()
-    const updates      = UpdateWidget()
     const sysInfo      = SysInfoWidget()
     const colorPicker  = ColorPickerWidget()
     const screenshot   = ScreenshotWidget()
@@ -49,31 +47,26 @@ export default function PrimaryBar(monitor: Gdk.Monitor): Astal.Window {
     const systemTray   = SystemTrayWidget()
 
     // --- Left ---
-    const left = new Gtk.Box({ halign: Gtk.Align.START, hexpand: true })
-    append(left, power)
+    const left = new Gtk.Box({ halign: Gtk.Align.START, hexpand: true, spacing: 8 })
     append(left, homeMenu)
+    append(left, notifications)
     append(left, systemTray)
-    append(left, updates)
     append(left, sysInfo)
-    left.append(new Gtk.Separator())
-    append(left, pomodoro)
     append(left, mediaPlayer)
 
     // --- Center ---
     const center = new Gtk.Box({ halign: Gtk.Align.CENTER, valign: Gtk.Align.CENTER })
     append(center, workspaces)
     // --- Right ---
-    const right = new Gtk.Box({ halign: Gtk.Align.END, hexpand: true })
+    const right = new Gtk.Box({ halign: Gtk.Align.END, hexpand: true, spacing: 8 })
+    append(right, pomodoro)
     append(right, colorPicker)
     append(right, screenshot)
     append(right, darkMode)
-    right.append(new Gtk.Separator())
-    append(right, notifications)
     append(right, audio)
     append(right, network)
     append(right, bluetooth)
     append(right, battery)
-    right.append(new Gtk.Separator())
     append(right, clock)
 
     // --- Layout ---
@@ -90,7 +83,7 @@ export default function PrimaryBar(monitor: Gdk.Monitor): Astal.Window {
         gdkmonitor: monitor,
         anchor: TOP | LEFT | RIGHT,
         exclusivity: Astal.Exclusivity.EXCLUSIVE,
-        height_request: 45,
+        height_request: BARHEIGHT,
         vexpand: true,
         css_classes: ["taskbar"],
         layer: Astal.Layer.TOP,

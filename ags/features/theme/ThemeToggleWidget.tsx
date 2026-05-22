@@ -1,6 +1,7 @@
 import { Gtk } from "ags/gtk4"
 import Gdk from "gi://Gdk?version=4.0"
 import GLib from "gi://GLib"
+import BarButton from "../../components/BarButton"
 
 let THEME: string = "nordic"
 
@@ -11,19 +12,7 @@ let currentProvider: Gtk.CssProvider | null = null
 let isDark = true
 
 export default function ThemeToggleWidget(): Gtk.Widget {
-    const icon = new Gtk.Image({
-        css_classes: ["theme-toggle__icon"],
-        icon_name: "weather-clear-night-symbolic",
-        pixel_size: 16,
-    })
-
-    const btn = new Gtk.Button({
-        css_classes: ["statusbar-widget", "theme-toggle"],
-        halign: Gtk.Align.CENTER,
-        valign: Gtk.Align.CENTER,
-        tooltip_text: "Toggle theme",
-    })
-    btn.set_child(icon)
+    const btn = new BarButton({iconName: "dark-mode-symbolic"})
 
     const applyTheme = (dark: boolean) => {
         const display = Gdk.Display.get_default()!
@@ -41,7 +30,7 @@ export default function ThemeToggleWidget(): Gtk.Widget {
             Gtk.STYLE_PROVIDER_PRIORITY_USER
         )
         currentProvider = provider
-        icon.icon_name = dark ? "weather-clear-night-symbolic" : "weather-clear-symbolic"
+        btn.icon.icon_name = dark ? "dark-mode-symbolic" : "light-mode-symbolic"
     }
 
     applyTheme(isDark)

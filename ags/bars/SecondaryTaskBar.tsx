@@ -13,7 +13,7 @@ const append = (box: Gtk.Box, widget: Gtk.Widget | null) => {
 export default function SecondaryBar(monitor: Gdk.Monitor): Astal.Window {
     const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
 
-    const workspaces = WorkspacesWidget(monitor, false)
+    const workspaces = WorkspacesWidget(monitor)
     const clock      = ClockWidget()
     const sysInfo    = SysInfoWidget()
     const homeMenu   = HomeMenuWidget()
@@ -42,7 +42,7 @@ export default function SecondaryBar(monitor: Gdk.Monitor): Astal.Window {
         gdkmonitor: monitor,
         anchor: TOP | LEFT | RIGHT,
         exclusivity: Astal.Exclusivity.EXCLUSIVE,
-        height_request: 45,
+        height_request: 50,
         css_classes: ["taskbar"],
         layer: Astal.Layer.TOP,
     })

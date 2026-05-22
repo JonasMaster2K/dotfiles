@@ -4,7 +4,7 @@ import Gdk from "gi://Gdk?version=4.0"
 import TaskBarIconButton from "../../components/BarButton"
 
 export default function ColorPickerWidget(): Gtk.Widget {
-    const btn = new TaskBarIconButton({iconName: "color-select-symbolic"})
+    const btn = new TaskBarIconButton({iconName: "eyedropper-symbolic"})
 
     // FUNCTIONALITY ==========================================
     btn.connect("clicked", () => {

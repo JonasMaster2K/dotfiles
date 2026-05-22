@@ -1,68 +1,60 @@
 /* ════════════════════════════════
-   THEME — Nordic Dark
-════════════════════════════════ */
-/* ════════════════════════════════
-   THEME — Nord Dark
-   nord.theme.org
+   THEME — Deep Space (Dark)
 ════════════════════════════════ */
 :root {
-  /* Polar Night */
-  --nord0: #2e3440;
-  --nord1: #3b4252;
-  --nord2: #434c5e;
-  --nord3: #4c566a;
+  /* Cosmic Palette */
+  --space-void:  #0a0f1d; /* Tiefes, kosmisches Schwarz-Blau */
+  --space-dark:  #121b2d; /* Basis-Hintergrund */
+  --space-panel: #1b263b; /* Oberflächen / Karten */
+  --space-light: #24324f; /* Erhöhte Elemente / Hover */
 
-  /* Snow Storm */
-  --nord4: #d8dee9;
-  --nord5: #e5e9f0;
-  --nord6: #eceff4;
+  /* Star & Nebula Light */
+  --star-white:  #f1f5f9; /* Primärer Text */
+  --nebula-gray: #cbd5e1; /* Sekundärer Text */
+  --cosmic-dust: #64748b; /* Inaktiver Text / Struktur */
 
-  /* Frost */
-  --nord7:  #8fbcbb;
-  --nord8:  #88c0d0;
-  --nord9:  #81a1c1;
-  --nord10: #5e81ac;
-
-  /* Aurora */
-  --nord11: #bf616a;
-  --nord12: #d08770;
-  --nord13: #ebcb8b;
-  --nord14: #a3be8c;
-  --nord15: #b48ead;
+  /* Earth Atmosphere Glow (Accents) */
+  --glow-cyan:   #38bdf8; /* Leuchtendes Cyan-Blau */
+  --glow-blue:   #0ea5e9; /* Tiefere Atmosphäre */
+  --glow-deep:   #0284c7; /* Dunklerer Akzent */
+  
+  /* Spark / Ember (Aurora-Ersatz) */
+  --spark-orange: #f97316; /* Funken-Orange */
+  --spark-red:    #ef4444; /* Glühendes Rot */
 
   /* ── Semantic mapping ── */
-  --bg-base:     var(--nord0);
-  --bg-surface:  var(--nord1);
-  --bg-elevated: var(--nord2);
-  --bg-overlay:  var(--nord3);
-  --bg-hover:    #5a6479;
+  --bg-base:     var(--space-void);
+  --bg-surface:  var(--space-dark);
+  --bg-elevated: var(--space-panel);
+  --bg-overlay:  var(--space-light);
+  --bg-hover:    #2e3f61;
 
-  --border-subtle:  var(--nord1);
-  --border-default: var(--nord2);
-  --border-strong:  var(--nord3);
+  --border-subtle:  var(--space-dark);
+  --border-default: var(--space-panel);
+  --border-strong:  var(--space-light);
 
-  --text-primary:   var(--nord6);
-  --text-secondary: var(--nord4);
-  --text-tertiary:  var(--nord3);
-  --text-disabled:  var(--nord2);
-  --text-inverse:   var(--nord0);
+  --text-primary:   var(--star-white);
+  --text-secondary: var(--nebula-gray);
+  --text-tertiary:  var(--cosmic-dust);
+  --text-disabled:  #475569;
+  --text-inverse:   var(--space-void);
 
-  --accent:          var(--nord8);
-  --accent-hover:    var(--nord7);
-  --accent-muted:    #1e3a42;
-  --accent-subtle:   #162830;
-  --accent-selected: #1e3d50;
+  --accent:          var(--glow-cyan);
+  --accent-hover:    #7dd3fc;
+  --accent-muted:    #0c3b5e;
+  --accent-subtle:   #072640;
+  --accent-selected: #0f4c75;
 
-  --ok:           var(--nord14);
-  --ok-muted:     #1e2e1a;
-  --warn:         var(--nord13);
-  --warn-muted:   #2e2810;
-  --err:          var(--nord11);
-  --err-muted:    #2e1618;
-  --info:         var(--nord9);
-  --info-muted:   #1a2436;
-  --purple:       var(--nord15);
-  --purple-muted: #261a2e;
+  --ok:           #4ade80;
+  --ok-muted:     #052e16;
+  --warn:         var(--spark-orange);
+  --warn-muted:   #431407;
+  --err:          var(--spark-red);
+  --err-muted:    #450a0a;
+  --info:         var(--glow-blue);
+  --info-muted:   #073655;
+  --purple:       #c084fc;
+  --purple-muted: #2e104e;
 }
 
 /* ── Tokens ── */
@@ -95,3 +87,7 @@
 @import "../../widgets/media-player.scss";
 @import "../../widgets/clock.scss";
 @import "../../widgets/notifications.scss";
+@import "../../widgets/pomodoro.scss";
+@import "../../widgets/battery.scss";
+@import "../../widgets/bluetooth.scss";
+@import "../../widgets/network.scss";

@@ -29,7 +29,7 @@ export default class BarButton extends Gtk.Button {
             halign: Gtk.Align.CENTER,
             hexpand: true,
             icon_name: iconName,
-            pixel_size: 18,
+            pixel_size: 22,
         })
         this.extra = new Gtk.Box({ spacing: 2 })
         if (iconName) this.content.append(this.icon)

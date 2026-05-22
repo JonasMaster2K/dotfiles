@@ -4,9 +4,24 @@ import Gdk from "gi://Gdk?version=4.0"
 import PrimaryBar   from "./bars/PrimaryTaskBar"
 import SecondaryBar from "./bars/SecondaryTaskBar"
 import NotificationPopupFeed from "./features/notification/NotificationPopup"
+import { popovers } from "./features/homemenu/HomeMenuWidget"
 
 app.start({
+    instanceName: "desktop-shell",
     css: "./style/themes/nordic/dark.scss",
+    requestHandler(argv: string[], res: (response: any) => void) {
+        const popover = popovers.get(argv[0])
+        if (popover) {
+            if (popover.is_visible()) {
+                popover.popdown()
+                } else {
+                popover.popup()
+            }
+            res("ok")
+        } else {
+            res("unknown: " + argv[0])
+        }
+    },
     main() {
         NotificationPopupFeed()
 

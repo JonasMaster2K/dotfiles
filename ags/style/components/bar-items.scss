@@ -17,7 +17,7 @@
 }
 
 .bar__btn:hover {
-  background: var(--bg-overlay);
+  background: rgba(from var(--bg-overlay) r g b / 0.35);
 }
 
 .bar__btn--active {

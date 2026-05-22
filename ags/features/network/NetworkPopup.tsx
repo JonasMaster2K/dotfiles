@@ -63,7 +63,7 @@ export default function NetworkPopup(network: AstalNetwork.Network): Gtk.Popover
     const headerBottomRow = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, hexpand: true, spacing: 8 })
     header.append(headerBottomRow)
 
-    const connectionType = new Gtk.Image({ icon_name: "network-cellular-connected-symbolic" })
+    const connectionType = new Gtk.Image({ icon_name: "network-cellular-connected-symbolic", pixel_size: 20 })
     headerBottomRow.append(connectionType)
 
     const activeConncetion = new Gtk.Label({
@@ -122,7 +122,7 @@ export default function NetworkPopup(network: AstalNetwork.Network): Gtk.Popover
     pwTopRow.append(pwSsidLabel)
 
     const pwCancelBtn = new Gtk.Button({ css_classes: ["btn", "btn--elevated", "btn--round", "btn--danger"], valign: Gtk.Align.CENTER })
-    pwCancelBtn.set_child(new Gtk.Image({ icon_name: "window-close-symbolic" }))
+    pwCancelBtn.set_child(new Gtk.Image({ icon_name: "window-close-symbolic", pixel_size: 24 }))
     pwTopRow.append(pwCancelBtn)
 
     const pwEntryRow = new Gtk.Box({ orientation: Gtk.Orientation.HORIZONTAL, spacing: 8 })
@@ -138,16 +138,16 @@ export default function NetworkPopup(network: AstalNetwork.Network): Gtk.Popover
     pwEntryRow.append(pwEntry)
 
     const pwToggleBtn = new Gtk.ToggleButton({ css_classes: ["btn", "btn--elevated", "btn--round"], valign: Gtk.Align.CENTER })
-    const pwToggleIcon = new Gtk.Image({ icon_name: "view-reveal-symbolic" })
+    const pwToggleIcon = new Gtk.Image({ icon_name: "visible-symbolic", pixel_size: 24 })
     pwToggleBtn.set_child(pwToggleIcon)
     pwToggleBtn.connect("toggled", () => {
         pwEntry.visibility = pwToggleBtn.active
-        pwToggleIcon.icon_name = pwToggleBtn.active ? "view-conceal-symbolic" : "view-reveal-symbolic"
+        pwToggleIcon.icon_name = pwToggleBtn.active ? "invisble-symbolic" : "visible-symbolic"
     })
     pwEntryRow.append(pwToggleBtn)
 
     const pwConnectBtn = new Gtk.Button({ css_classes: ["btn", "btn--elevated", "btn--round", "btn--accent"], valign: Gtk.Align.CENTER })
-    pwConnectBtn.set_child(new Gtk.Image({ icon_name: "network-wireless-connected-symbolic" }))
+    pwConnectBtn.set_child(new Gtk.Image({ icon_name: "network-wireless-connected-symbolic", pixel_size: 24 }))
     pwEntryRow.append(pwConnectBtn)
 
     popoverContent.append(new Gtk.Separator({ css_classes: ["divider"] }))
@@ -157,7 +157,7 @@ export default function NetworkPopup(network: AstalNetwork.Network): Gtk.Popover
     popoverContent.append(footer)
 
     const showAllBtn = new Gtk.Button({ css_classes: ["btn", "btn--elevated", "btn--round"], halign: Gtk.Align.START })
-    const showAllIcon = new Gtk.Image({ icon_name: "view-reveal-symbolic" })
+    const showAllIcon = new Gtk.Image({ icon_name: "visible-symbolic", pixel_size: 24 })
     showAllBtn.set_child(showAllIcon)
     footer.append(showAllBtn)
 
@@ -165,12 +165,12 @@ export default function NetworkPopup(network: AstalNetwork.Network): Gtk.Popover
     footer.append(footerSpacer)
 
     const rescanBtn = new Gtk.Button({ css_classes: ["btn", "btn--elevated", "btn--round"], halign: Gtk.Align.END })
-    const rescanIcon = new Gtk.Image({ css_classes: ["rescan-icon"], icon_name: "view-refresh-symbolic" })
+    const rescanIcon = new Gtk.Image({ css_classes: ["rescan-icon"], icon_name: "reload-symbolic", pixel_size: 24 })
     rescanBtn.set_child(rescanIcon)
     footer.append(rescanBtn)
 
     const settingsBtn = new Gtk.Button({ css_classes: ["btn", "btn--elevated", "btn--round"], halign: Gtk.Align.END })
-    settingsBtn.set_child(new Gtk.Image({ icon_name: "preferences-system-symbolic" }))
+    settingsBtn.set_child(new Gtk.Image({ icon_name: "preferences-system-symbolic", pixel_size: 24 }))
     footer.append(settingsBtn)
 
     // ========================================================
@@ -210,8 +210,9 @@ export default function NetworkPopup(network: AstalNetwork.Network): Gtk.Popover
 
         const row = new Gtk.Box({ css_classes: ["card"], orientation: Gtk.Orientation.HORIZONTAL, spacing: 6 })
 
-        row.append(new Gtk.Image({ icon_name: ap.iconName }))
-        if (ap.requiresPassword) row.append(new Gtk.Image({ icon_name: "dialog-password-symbolic" }))
+        let iconName = ap.iconName.replace(/-symbolic$/, "")
+        if (ap.requiresPassword) row.append(new Gtk.Image({ icon_name: iconName.concat("-secure-symbolic"), pixel_size: 24 }))
+        else row.append(new Gtk.Image({ icon_name: ap.iconName, pixel_size: 24 }))
 
         const infoBox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, hexpand: true, valign: Gtk.Align.CENTER })
 
@@ -234,7 +235,8 @@ export default function NetworkPopup(network: AstalNetwork.Network): Gtk.Popover
 
         const btn = new Gtk.Button({ css_classes: ["btn", "btn--elevated", "btn--round"], valign: Gtk.Align.CENTER })
         btn.set_child(new Gtk.Image({
-            icon_name: isActive ? "network-wired-disconnected-symbolic" : "network-wireless-connected-symbolic",
+            icon_name: isActive ? "disconnect-symbolic" : "connect-symbolic",
+            pixel_size: 24
         }))
         btn.connect("clicked", () => {
             if (isActive) {
@@ -298,7 +300,7 @@ export default function NetworkPopup(network: AstalNetwork.Network): Gtk.Popover
 
     showAllBtn.connect("clicked", () => {
         showAll = !showAll
-        showAllIcon.icon_name = showAll ? "view-conceal-symbolic" : "view-reveal-symbolic"
+        showAllIcon.icon_name = showAll ? "invisible-symbolic" : "visible-symbolic"
         update()
     })
 

@@ -256,9 +256,9 @@ export default function AudioPopup(audio: AstalWp.Audio): Gtk.Popover {
         const mic = audio.defaultMicrophone
         if (!mic) return
         micSlider.set_value(mic.volume)
-        updateMuteButton(micMuteBtn, mic.mute, "microphone-sensitivity-muted-symbolic", "audio-input-microphone-symbolic")
+        updateMuteButton(micMuteBtn, mic.mute, "audio-input-microphone-muted-symbolic", "audio-input-microphone-symbolic")
         mic.connect("notify::volume", () => micSlider.set_value(mic.volume))
-        mic.connect("notify::mute", () => updateMuteButton(micMuteBtn, mic.mute, "microphone-sensitivity-muted-symbolic", "audio-input-microphone-symbolic"))
+        mic.connect("notify::mute", () => updateMuteButton(micMuteBtn, mic.mute, "audio-input-microphone-muted-symbolic", "audio-input-microphone-symbolic"))
     }
 
     muteBtn.connect("clicked", () => {
@@ -269,7 +269,7 @@ export default function AudioPopup(audio: AstalWp.Audio): Gtk.Popover {
 
     micMuteBtn.connect("clicked", () => {
         audio.defaultMicrophone.mute = !audio.defaultMicrophone.mute
-        updateMuteButton(micMuteBtn, audio.defaultMicrophone.mute, "microphone-sensitivity-muted-symbolic", "audio-input-microphone-symbolic")
+        updateMuteButton(micMuteBtn, audio.defaultMicrophone.mute, "audio-input-microphone-muted-symbolic", "audio-input-microphone-symbolic")
     })
     micSlider.connect("value-changed", () => audio.defaultMicrophone?.set_volume(micSlider.get_value()))
 

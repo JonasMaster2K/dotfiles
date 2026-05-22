@@ -3,20 +3,21 @@ import GdkPixbuf from "gi://GdkPixbuf?version=2.0"
 import AstalMpris from "gi://AstalMpris?version=0.1"
 import BarButton from "../../components/BarButton"
 import Marquee from "../../components/Marquee"
-import AudioVisualizer from "../../services/AudioVisualizer"
+import AudioVisualizer, { VisualizerAlign } from "../../services/AudioVisualizer"
+import AudioVisualizerWidget from "../../components/AudioVisualizerWidget"
 import MediaPlayerPopup from "./MediaPlayerPopup"
 
 const mpris: AstalMpris.Mpris = AstalMpris.get_default()
-const BAR_COUNT  = 12
+const BAR_COUNT  = 14
 
 function cleanText(s: string): string {
     return s.replace(/\s+[\-\(\[\{].*$/, "").trim()
 }
 
-export default function MediaPlayerWidget(barHight: number): Gtk.Widget {
-    const visualizer = new AudioVisualizer(BAR_COUNT)
+export default function MediaPlayerWidget(barHight: number, align: VisualizerAlign = "center"): Gtk.Widget {
+    const visualizer = new AudioVisualizer(BAR_COUNT, align)
 
-    let COVERSIZE: number = barHight - 19
+    let COVERSIZE: number = barHight - 16
 
     // ═══════════════════════════════════════
     // STRUCTURE
@@ -53,13 +54,13 @@ export default function MediaPlayerWidget(barHight: number): Gtk.Widget {
 
     const pauseOverlay = new Gtk.Box({
         css_classes: ["media-player__pause-overlay"],
-        halign: Gtk.Align.FILL,
-        valign: Gtk.Align.FILL,
+        halign: Gtk.Align.CENTER,
+        valign: Gtk.Align.CENTER,
         visible: false,
     })
     pauseOverlay.append(new Gtk.Image({
         iconName: "media-playback-pause-symbolic",
-        pixelSize: 14,
+        pixelSize: 16,
         halign: Gtk.Align.CENTER,
         valign: Gtk.Align.CENTER,
         hexpand: true,
@@ -71,8 +72,9 @@ export default function MediaPlayerWidget(barHight: number): Gtk.Widget {
     // — Center: title + progress —
     const centerBox = new Gtk.Box({
         orientation: Gtk.Orientation.VERTICAL,
-        valign: Gtk.Align.END,
-        spacing: 5,
+        valign: Gtk.Align.CENTER,
+        vexpand: true,
+        spacing: 3,
     })
     content.append(centerBox)
 
@@ -104,12 +106,18 @@ export default function MediaPlayerWidget(barHight: number): Gtk.Widget {
     })
     content.append(audioVisualizerRevealer)
 
-    const drawingArea = new Gtk.DrawingArea({
-        css_classes: ["media-player__visualizer"],
-        widthRequest: 75,
-        valign: Gtk.Align.FILL,
+    // Nutzt jetzt deine ausgelagerte Komponente statt der Inline-Zeichenfläche
+    const visualizerWidget = AudioVisualizerWidget({
+        visualizer: visualizer,
+        width: 75,
+        height: barHight - 12, // Nimmt die Höhe passend zur Bar an minus Padding
+        barWidth: 4,
+        barSpacing: 2
     })
-    audioVisualizerRevealer.set_child(drawingArea)
+    visualizerWidget.css_classes = ["media-player__visualizer"]
+    visualizerWidget.valign = Gtk.Align.FILL
+    
+    audioVisualizerRevealer.set_child(visualizerWidget)
 
     // — Popup —
     const popup = MediaPlayerPopup(() => player)
@@ -121,30 +129,6 @@ export default function MediaPlayerWidget(barHight: number): Gtk.Widget {
 
     let player: AstalMpris.Player | null = null
     let playerSignals: number[] = []
-
-    // — Drawing —
-    drawingArea.set_draw_func((_area, cr, width, height) => {
-        const bars = visualizer.getBars()
-        const barW = width / BAR_COUNT
-        const gap    = 2
-        const radius = 2
-        for (let i = 0; i < BAR_COUNT; i++) {
-            const h = Math.max(bars[i] * height, 2)
-            const x = i * barW + gap / 2
-            const y = height - h
-            const w = barW - gap
-            cr.setSourceRGBA(0.533, 0.753, 0.816, 0.4 + bars[i] * 0.6)
-            cr.moveTo(x + radius, y)
-            cr.lineTo(x + w - radius, y)
-            cr.arc(x + w - radius, y + radius, radius, -Math.PI / 2, 0)
-            cr.lineTo(x + w, y + h)
-            cr.lineTo(x, y + h)
-            cr.arc(x + radius, y + radius, radius, Math.PI, Math.PI * 1.5)
-            cr.closePath()
-            cr.fill()
-        }
-    })
-    visualizer.subscribe(() => drawingArea.queue_draw())
 
     audioVisualizerRevealer.connect("notify::child-revealed", () => {
         if (!audioVisualizerRevealer.child_revealed)

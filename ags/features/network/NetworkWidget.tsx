@@ -7,7 +7,7 @@ export default function NetworkWidget(): Gtk.Widget {
     const network = AstalNetwork.get_default()
 
     // STRUCTURE ==============================================
-    const btn = new TaskBarIconButton({iconName: "network-no-route-symbolic"})
+    const btn = new TaskBarIconButton({iconName: "network-wireless-disabled-symbolic"})
 
     const popupMenu = NetworkPopup(network)
     popupMenu.set_parent(btn)
@@ -26,6 +26,9 @@ export default function NetworkWidget(): Gtk.Widget {
         if (wifiSsidHandler){ network.wifi.disconnect(wifiSsidHandler);  wifiSsidHandler = null }
 
         btn.tooltip_text = ""
+        
+        // Standard-Klasse für das Icon (Hintergrund-Button bleibt unberührt)
+        const iconClasses = ["image"]
 
         switch (network.primary) {
             case AstalNetwork.Primary.WIRED:
@@ -45,8 +48,13 @@ export default function NetworkWidget(): Gtk.Widget {
                 })
                 break
             default:
-                btn.icon.icon_name = "network-no-route-symbolic"
+                btn.icon.icon_name = "network-wireless-disabled-symbolic"
+                // Wenn kein Netz da ist, färben wir das Icon rot
+                iconClasses.push("network-icon--err")
         }
+
+        // Klassen exakt an das Icon übergeben
+        btn.icon.set_css_classes(iconClasses)
     }
 
     update()

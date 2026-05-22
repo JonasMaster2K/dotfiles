@@ -3,14 +3,14 @@
 ════════════════════════════════ */
 .clock__date {
   font-family: var(--font-mono);
-  font-size: var(--text-md);
-  color: var(--text-secondary);
-  letter-spacing: 0.03em;
+  font-size: var(--text-sl);
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
 }
 
 .clock__time {
   font-family: var(--font-mono);
-  font-size: var(--text-lg);
+  font-size: var(--text-sl);
   font-weight: var(--font-medium);
   color: var(--text-primary);
   letter-spacing: 0.05em;
@@ -18,18 +18,12 @@
 
 .clock__ampm {
   font-family: var(--font-mono);
-  font-size: var(--text-md);
+  font-size: var(--text-sl);
   color: var(--text-secondary);
 }
 
 .clock__sec {
   font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  color: var(--text-tertiary);
-}
-
-.clock__sep {
-  background: var(--border-subtle);
-  min-width: 1px;
-  margin: var(--space-1) var(--space-1);
+  font-size: var(--text-sl);
+  color: var(--text-secondary);
 }

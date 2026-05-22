@@ -12,7 +12,7 @@ const formatNet = (bytes: number) => {
     return `${bytes}B/s`
 }
 
-function createStat(iconName: string): [Gtk.Box, Gtk.Label] {
+function createStat(iconName: string): [Gtk.Box, Gtk.Label, Gtk.Image] {
     const box = new Gtk.Box({ 
         spacing: 4, 
         valign: Gtk.Align.CENTER 
@@ -20,7 +20,7 @@ function createStat(iconName: string): [Gtk.Box, Gtk.Label] {
     
     const icon = new Gtk.Image({ 
         icon_name: iconName, 
-        pixel_size: 14,
+        pixel_size: 20,
         css_classes: ["icon--secondary"] 
     })
     
@@ -32,7 +32,7 @@ function createStat(iconName: string): [Gtk.Box, Gtk.Label] {
     box.append(icon)
     box.append(label)
     
-    return [box, label]
+    return [box, label, icon]
 }
 
 export default function SysInfoWidget(): Gtk.Widget {
@@ -50,11 +50,11 @@ export default function SysInfoWidget(): Gtk.Widget {
         hexpand: true 
     })
 
-    const [netRxBox, netRxLabel] = createStat("network-receive-symbolic")
-    const [netTxBox, netTxLabel] = createStat("network-transmit-symbolic")
-    const [cpuBox, cpuLabel]     = createStat("cpu-symbolic")
-    const [tempBox, tempLabel]   = createStat("sensors-temperature-symbolic")
-    const [memBox, memLabel]     = createStat("ram-symbolic")
+    const [netRxBox, netRxLabel, netRxIcon] = createStat("network-receive-symbolic")
+    const [netTxBox, netTxLabel, netTxIcon] = createStat("network-transmit-symbolic")
+    const [cpuBox, cpuLabel, cpuIcon]     = createStat("cpu-symbolic")
+    const [tempBox, tempLabel, tempIcon]   = createStat("thermometer-symbolic")
+    const [memBox, memLabel, memIcon]     = createStat("ram-symbolic")
 
     const allBoxes: Gtk.Box[] = [netRxBox, netTxBox, cpuBox, tempBox, memBox]
     allBoxes.forEach(box => statsContainer.append(box))
@@ -65,14 +65,18 @@ export default function SysInfoWidget(): Gtk.Widget {
 
     const updateMem = () => {
         const used = usage.memoryTotal - usage.memoryAvailable
+        const pct = used / usage.memoryTotal
         memLabel.label = `${bytesToGB(used)}/${bytesToGB(usage.memoryTotal)}GB`
+        memIcon.css_classes = pct < 0.5 ? ["icon--ok"] : pct >= 0.5 && pct < 0.8 ? ["icon--warn"] : ["icon--err"]
     }
 
     const updateAll = () => {
         netRxLabel.label = formatNet(usage.netRx)
         netTxLabel.label = formatNet(usage.netTx)
         cpuLabel.label   = `${Math.round(usage.cpuUsage * 100)}%`
+        cpuIcon.css_classes = usage.cpuUsage < 0.5 ? ["icon--ok"] : usage.cpuUsage >= 0.5 && usage.cpuUsage < 0.8 ? ["icon--warn"] : ["icon--err"]
         tempLabel.label  = usage.cpuTemp > 0 ? `${usage.cpuTemp}°C` : `--°C`
+        tempIcon.css_classes = usage.cpuTemp < 50 ? ["icon--ok"] : usage.cpuTemp >= 50 && usage.cpuTemp < 80 ? ["icon--warn"] : ["icon--err"]
         updateMem()
     }
 

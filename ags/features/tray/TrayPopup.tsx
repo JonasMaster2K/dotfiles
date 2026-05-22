@@ -14,10 +14,10 @@ export default function SystemTrayPopup(): Gtk.Popover {
             child = popup.body.get_first_child()
         }
 
-        const items = tray.get_items()
+        const items = tray.get_items() 
         const cols = Math.min(4, items.length)
         const grid = new Gtk.Grid({ column_spacing: 4, row_spacing: 4 })
-
+        console.log(items.length)
         items.forEach((item, i) => {
             const btn = new Gtk.Button({ css_classes: ["btn", "btn--elevated", "btn--round"] })
             btn.set_child(new Gtk.Image({ gicon: item.gicon, pixel_size: 20 }))
@@ -28,7 +28,9 @@ export default function SystemTrayPopup(): Gtk.Popover {
             rightClick.connect("pressed", () => {
                 if (!item.menuModel) return
                 const menu = Gtk.PopoverMenu.new_from_model(item.menuModel)
+                menu.insert_action_group("dbusmenu", item.actionGroup);
                 menu.set_parent(btn)
+                item.about_to_show()
                 menu.popup()
             })
             btn.add_controller(rightClick)
@@ -40,6 +42,9 @@ export default function SystemTrayPopup(): Gtk.Popover {
 
         popup.body.append(grid)
     }
+
+    tray.connect("item-removed", ()=>{update()})
+    tray.connect("item-added", ()=>{update()})
 
     popup.onOpen = update
     return popup

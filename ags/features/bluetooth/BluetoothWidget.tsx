@@ -15,11 +15,23 @@ export default function BluetoothWidget(): Gtk.Widget {
     btn.add_controller(rightClick)
     rightClick.connect("pressed", () => { bluetooth.toggle() })
 
-    bluetooth.connect("notify::is-powered", () => {
+    // Update-Funktion für die Icon-Farbe und den Namen
+    const updateIcon = () => {
         btn.icon.icon_name = bluetooth.isPowered ? "bluetooth-active-symbolic" : "bluetooth-disabled-symbolic"
-    })
+        
+        const iconClasses = ["image"]
+        if (!bluetooth.isPowered) {
+            iconClasses.push("bluetooth-icon--err")
+        }
+        
+        btn.icon.set_css_classes(iconClasses)
+    }
+
+    bluetooth.connect("notify::is-powered", updateIcon)
 
     btn.connect("clicked", () => popupMenu.popup())
+
+    updateIcon()
 
     return btn
 }

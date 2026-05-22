@@ -30,9 +30,8 @@ export default function AudioWidget(): Gtk.Widget {
 
     const update = () => {
         speaker = audio.defaultSpeaker
-        btn.icon.icon_name   = speaker?.volumeIcon ?? "audio-volume-muted-symbolic"
+        btn.icon.icon_name   = speaker?.volume === 0 ? "audio-volume-off-symbolic" : speaker?.volumeIcon ?? "audio-volume-muted-symbolic"
         btn.tooltip_text = Math.round((speaker?.volume ?? 0) * 100) + "%"
-        console.log(`Audio-update called with ${speaker?.volumeIcon}`)
     }
     update()
     audio.connect("notify::default-speaker", update)
