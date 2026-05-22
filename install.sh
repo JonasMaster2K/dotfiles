@@ -267,9 +267,10 @@ fi
 sudo_safe_link "$DOTFILES/sddm/sddm.conf" /etc/sddm.conf
 sudo sed -i.bak "s/^User=.*/User=$CURRENT_USER/" /etc/sddm.conf
 
-safe_link "$DOTFILES/hypr/hyprland.conf"                       ~/.config/hypr/hyprland.conf
-safe_link "$DOTFILES/hypr/hyprpaper.conf"                      ~/.config/hypr/hyprpaper.conf
-safe_link "$DOTFILES/hypr/hypridle.conf"                       ~/.config/hypr/hypridle.conf
+safe_link "$DOTFILES/hypr/hyprland.lua"                         ~/.config/hypr/hyprland.lua
+safe_link "$DOTFILES/hypr/hyprland"                             ~/.config/hypr/hyprland
+safe_link "$DOTFILES/hypr/hyprpaper.conf"                       ~/.config/hypr/hyprpaper.conf
+safe_link "$DOTFILES/hypr/hypridle.conf"                        ~/.config/hypr/hypridle.conf
 if [[ "$PROFILE" == "pc" ]]; then
     safe_link "$DOTFILES/hypr/hyprlock_pc.conf" ~/.config/hypr/hyprlock.conf
 else
