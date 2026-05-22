@@ -10,4 +10,4 @@ node_modules/
 tmp
 installer/target
 installer/Cargo.lock
-icon-theme.cache
+LunaIcons/icon-theme.cache
