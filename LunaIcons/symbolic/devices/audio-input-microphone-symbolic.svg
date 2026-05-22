@@ -1,3 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" version="1.1" viewBox="0 0 16 16">
- <path fill="currentColor" d="M 8,0 C 6.34,0 5,1.34 5,3 V 8 C 5,9.66 6.34,11 8,11 9.66,11 11,9.66 11,8 V 3 C 11,1.34 9.66,0 8,0 Z M 2,7 V 8 C 2,10.97 4.16,13.43 7,13.91 V 16 H 9 V 13.91 C 11.84,13.43 14,10.97 14,8 V 7 H 12 V 8 C 12,10.23 10.23,12 8,12 5.77,12 4,10.23 4,8 V 7 Z"/>
-</svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="15.999999"
+   height="16"
+   viewBox="0 0 16 16"
+   version="1.1"
+   id="svg1"
+   xml:space="preserve"
+   xmlns="http://www.w3.org/2000/svg"><defs
+     id="defs1"><linearGradient
+       id="swatch6"><stop
+         style="stop-color:#000000;stop-opacity:1;"
+         offset="0"
+         id="stop6" /></linearGradient><style
+       id="style1">.cls-1{fill:none;stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5px;}</style></defs><g
+     id="g42"
+     style="display:inline"
+     transform="translate(-1.1044259e-5)"><path
+       id="path47"
+       style="baseline-shift:baseline;display:inline;overflow:visible;opacity:1;vector-effect:none;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:0;paint-order:stroke fill markers;enable-background:accumulate;stop-color:#000000;stop-opacity:1"
+       d="m 4.2714844,6.8964844 a 0.75,0.75 0 0 0 -0.097656,0.00391 0.75,0.75 0 0 0 -0.6640625,0.8261719 c 0,0 0.096255,0.9285347 0.7148438,1.8398437 0.5342362,0.787037 1.523462,1.579719 3.0253903,1.781246 V 13.5 H 5 A 0.75,0.75 0 0 0 4.25,14.25 0.75,0.75 0 0 0 5,15 h 6 A 0.75,0.75 0 0 0 11.75,14.25 0.75,0.75 0 0 0 11,13.5 H 8.75 v -2.152344 c 1.501928,-0.201527 2.491153,-0.994209 3.025391,-1.7812498 0.618588,-0.9113091 0.714843,-1.8398437 0.714843,-1.8398437 A 0.75,0.75 0 0 0 11.826172,6.9003906 0.75,0.75 0 0 0 11,7.5644531 c 0,0 -0.0672,0.5714651 -0.466797,1.1601563 C 10.133605,9.3133005 9.4892845,9.8964848 8,9.8964844 6.5107152,9.8964839 5.866395,9.3133002 5.4667969,8.7246094 5.0671988,8.1359185 5,7.5644531 5,7.5644531 A 0.75,0.75 0 0 0 4.2714844,6.8964844 Z" /><path
+       id="rect42"
+       d="m 8.0000001,1 c 1.293455,0 2.3420069,0.9710551 2.3420069,2.1689123 V 7.2496388 C 10.342007,8.4474959 9.293455,9.418551 8,9.418551 c -1.293455,0 -2.3420074,-0.9710551 -2.3420074,-2.1689122 l 1e-7,-4.0807265 C 5.6579927,1.9710551 6.7065451,1 8.0000001,1 Z"
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.1595;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:normal" /></g><style
+     type="text/css"
+     id="style1-6">
+	.st0{fill:#000000;}
+</style></svg>
