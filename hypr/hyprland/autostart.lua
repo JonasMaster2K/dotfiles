@@ -12,7 +12,8 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("bash -c 'sleep 1 && bash ~/dotfiles/hypr/scripts/wallpaper.sh'")
     hl.exec_cmd("bash -c 'sleep 2 && bash ~/dotfiles/hypr/scripts/screen-rotation.sh'")
 
-    hl.exec_cmd("ags run ~/dotfiles/ags/app.tsx")
+    hl.exec_cmd("systemd-run --user --unit=quickshell quickshell")
+    --hl.exec_cmd("ags run ~/dotfiles/ags/app.tsx")
 
     hl.exec_cmd("bash -c 'sleep 4 && easyeffects --hide-window --service-mode'")
 end)

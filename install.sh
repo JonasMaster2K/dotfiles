@@ -1,10 +1,10 @@
 #!/bin/bash
-# ============================================================
+# --
 #  Dotfiles Installer
 #  Usage: ./install.sh [--noconfirm]
-# ============================================================
+# --
 
-# ── Guards ────────────────────────────────────────────────
+# Guards
 if [[ "$EUID" -eq 0 ]]; then
     echo "ERROR: Do not run as root or with sudo."
     exit 1
@@ -17,7 +17,7 @@ fi
 
 set -euo pipefail
 
-# ── Config ────────────────────────────────────────────────
+# Parameters
 NOCONFIRM=false
 [[ "${1:-}" == "--noconfirm" ]] && NOCONFIRM=true
 
@@ -26,15 +26,15 @@ PARU=false
 LOG="$DOTFILES/install.log"
 CURRENT_USER="$(whoami)"
 
-# ── Logging ───────────────────────────────────────────────
+# Logging
 : > "$LOG"
 exec > >(tee -a "$LOG") 2>&1> >(tee -a "$LOG") 2>&1
 echo "==> Install started: $(date)"
 
-# ── Error trap (initial, before sudo keepalive) ───────────
+# Error trap (initial, before sudo keepalive)
 trap 'echo ""; echo "ERROR on line $LINENO. Check $LOG for details."; exit 1' ERR
 
-# ── Helpers ───────────────────────────────────────────────
+# Helpers
 confirm() {
     if $NOCONFIRM; then
         echo "==> [auto] $1"
@@ -234,7 +234,12 @@ if [[ "$PROFILE" == "laptop" || "$PROFILE" == "galaxybook5" ]]; then
     sudo_safe_link "$DOTFILES/logind/power.conf" /etc/systemd/logind.conf.d/power.conf
 fi
 
-# ── CORE 6: AUR ────────────────────────────────────────────
+# ── CORE 6: Quickshell ────────────────────────────────────────────
+echo ""
+echo "==> [CORE] Install Quickshell"
+pacman_install quickshell
+
+# ── CORE 7: AUR ────────────────────────────────────────────
 echo ""
 echo "==> [CORE] Install AUR package-manager: Paru"
 if ! command -v paru &>/dev/null; then
@@ -246,13 +251,6 @@ if ! command -v paru &>/dev/null; then
 else
     echo "==> paru already installed."
     PARU=true
-fi
-
-# ── CORE 7: AGS-Shell ────────────────────────────────────────────
-echo ""
-echo "==> [CORE] Install AGS-Shell"
-if $PARU; then
-    paru_install aylurs-gtk-shell-git libastal-meta swayosd-git wlogout
 fi
 
 # ── CORE 8: Dotfile Links ─────────────────────────────────
@@ -271,6 +269,7 @@ safe_link "$DOTFILES/hypr/hyprland.lua"                         ~/.config/hypr/h
 safe_link "$DOTFILES/hypr/hyprland"                             ~/.config/hypr/hyprland
 safe_link "$DOTFILES/hypr/hyprpaper.conf"                       ~/.config/hypr/hyprpaper.conf
 safe_link "$DOTFILES/hypr/hypridle.conf"                        ~/.config/hypr/hypridle.conf
+safe_link "$DOTFILES/quickshell"                                ~/.config/quickshell
 if [[ "$PROFILE" == "pc" ]]; then
     safe_link "$DOTFILES/hypr/hyprlock_pc.conf" ~/.config/hypr/hyprlock.conf
 else
@@ -285,12 +284,7 @@ safe_link "$DOTFILES/xdg-desktop-portal/hyprland-portals.conf" ~/.config/xdg-des
 # ╚══════════════════════════════════════════════════════════╝
 
 if $PARU && confirm "EXTRA — Theming (ags, wlogout, nordzy-cursors, tokyonight-theme)"; then
-    paru_install aylurs-gtk-shell-git libastal-meta swayosd-git wlogout \
-        nordzy-cursors tokyonight-gtk-theme-git
-
-    if command -v wlogout &>/dev/null; then
-        safe_link "$DOTFILES/wlogout/layout" ~/.config/wlogout/layout
-    fi
+    paru_install nordzy-cursors tokyonight-gtk-theme-git
 fi
 
 # ── Splash screen (nur mit systemd-boot) ─────────────────
@@ -386,11 +380,11 @@ if confirm "EXTRA — Tools"; then
     confirm "Backup"     && pacman_install timeshift
     confirm "Antivirus"  && pacman_install clamtk
     if $PARU; then
+        confirm "VS-Codium"     && paru_install vscodium-bin
+        confirm "Zen-Browser"   && paru_install zen-browser-bin
+        confirm "Spotify"       && paru_install spotify
         confirm "Airdrop"       && paru_install localsend-bin
         confirm "Firewall"      && paru_install portmaster-bin
-        confirm "Zen-Browser"   && paru_install zen-browser-bin
-        confirm "VS-Codium"     && paru_install vscodium-bin
-        confirm "Spotify"       && paru_install spotify
     fi
 fi
 

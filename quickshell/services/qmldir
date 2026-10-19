@@ -1,0 +1,13 @@
+PopupController 1.0 PopupController.qml
+
+singleton Time 1.0 Time.qml
+singleton SystemInfo 1.0 SystemInfo.qml
+singleton BatteryService 1.0 BatteryService.qml
+singleton AudioService 1.0 AudioService.qml
+singleton BluetoothService 1.0 BluetoothService.qml
+singleton NetworkService 1.0 NetworkService.qml
+singleton AirplaneModeService 1.0 AirplaneModeService.qml
+singleton WorkspaceService 1.0 WorkspaceService.qml
+singleton NotificationService 1.0 NotificationService.qml
+singleton WeatherService 1.0 WeatherService.qml
+singleton SystemSettingsService 1.0 SystemSettingsService.qml
