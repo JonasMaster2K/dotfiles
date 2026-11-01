@@ -15,3 +15,19 @@ local desktopMonitor = {
 
 hl.monitor(laptopMonitor)
 hl.monitor(desktopMonitor)
+
+function disableLaptopMonitor()
+    hl.monitor({
+        output = laptopMonitor.output, 
+        disabled = true ,
+    })
+end
+
+function enableLaptopMonitor()
+    hl.monitor(laptopMonitor)
+end
+
+-- Close lid
+hl.bind("switch:on:Lid Switch", disableLaptopMonitor, { locked = true })
+-- Open lid
+hl.bind("switch:off:Lid Switch", enableLaptopMonitor, { locked = true })

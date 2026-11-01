@@ -8,6 +8,7 @@ import "../../components/neomorphism/feedback" as Feedback
 import "../../style"
 import "../../services"
 import "../../config"
+import "../panels"
 
 Buttons.Button {
     id: root
@@ -16,7 +17,6 @@ Buttons.Button {
     property string displayMode: "iconText"
     property var taskBarWindow: null
 
-    property bool buttonMode: true
     buttonHeight: Dimensions.taskBarWidgetSizeMd
 
     property real moduleSpacing: Dimensions.spacingMd
@@ -78,5 +78,15 @@ Buttons.Button {
         }
     }
 
-    onClicked: {}
+    // ========================================================================
+    // INTERACTION
+    // ========================================================================
+
+    onClicked: {
+        dayHubPopup.toggle();
+    }
+
+    DayHubPanel {
+        id: dayHubPopup
+    }
 }

@@ -1,0 +1,5 @@
+singleton PanelController 1.0 PanelController.qml
+
+QuickControlsPanel 1.0 QuickControlsPanel.qml
+DayHubPanel 1.0 DayHubPanel.qml
+HomePanel 1.0 HomePanel.qml

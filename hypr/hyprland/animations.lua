@@ -152,7 +152,7 @@ hl.animation({
 -- UI / LAYERS
 -- =========================================================
 
-hl.animation({
+--[[ hl.animation({
     leaf = "layers",
     enabled = true,
     speed = 4,
@@ -174,7 +174,7 @@ hl.animation({
     speed = 3.2,
     bezier = "ui",
     style = "fade"
-})
+}) ]]
 
 -- =========================================================
 -- BORDER

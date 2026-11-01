@@ -102,29 +102,29 @@ hl.bind(mod .. " + SHIFT + 0",      hl.dsp.window.move({ workspace = 10, follow 
 hl.bind("Caps_Lock", hl.dsp.exec_cmd("swayosd-client --caps-lock"))
 
 -- Volume
-hl.bind("XF86AudioRaiseVolume",  hl.dsp.exec_cmd(osdclient .. " --output-volume raise"),       { description = "Volume up",           repeating = true, locked = true })
-hl.bind("XF86AudioLowerVolume",  hl.dsp.exec_cmd(osdclient .. " --output-volume lower"),       { description = "Volume down",         repeating = true, locked = true })
-hl.bind("XF86AudioMute",         hl.dsp.exec_cmd(osdclient .. " --output-volume mute-toggle"), { description = "Mute",                repeating = true, locked = true })
-hl.bind("XF86AudioMicMute",      hl.dsp.exec_cmd(osdclient .. " --input-volume mute-toggle"),  { description = "Mute microphone",     repeating = true, locked = true })
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_SINK@ 5%+"), { description = "Volume up", repeating = true, locked = true })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_SINK@ 5%-"), { description = "Volume down", repeating = true, locked = true })
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_SINK@ toggle"), { description = "Mute", locked = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_SOURCE@ toggle"), { description = "Mute microphone", locked = true })
 -- Precise 1% volume
-hl.bind("ALT + XF86AudioRaiseVolume", hl.dsp.exec_cmd(osdclient .. " --output-volume +1"), { description = "Volume up precise",   repeating = true, locked = true })
-hl.bind("ALT + XF86AudioLowerVolume", hl.dsp.exec_cmd(osdclient .. " --output-volume -1"), { description = "Volume down precise",  repeating = true, locked = true })
+hl.bind("ALT + XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_SINK@ 1%+"), { description = "Volume up precise",   repeating = true, locked = true })
+hl.bind("ALT + XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_SINK@ 1%-"), { description = "Volume down precise",  repeating = true, locked = true })
 
 -- Brightness
-hl.bind("XF86MonBrightnessUp",   hl.dsp.exec_cmd(osdclient .. " --brightness raise"), { description = "Brightness up",       repeating = true, locked = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(osdclient .. " --brightness lower"), { description = "Brightness down",     repeating = true, locked = true })
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), { description = "Brightness up", repeating = true, locked = true })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { description = "Brightness down", repeating = true, locked = true })
 -- Precise 1% brightness
-hl.bind("ALT + XF86MonBrightnessUp",   hl.dsp.exec_cmd(osdclient .. " --brightness +1"), { description = "Brightness up precise",   repeating = true, locked = true })
-hl.bind("ALT + XF86MonBrightnessDown", hl.dsp.exec_cmd(osdclient .. " --brightness -1"), { description = "Brightness down precise",  repeating = true, locked = true })
+hl.bind("ALT + XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set 1%+"), { description = "Brightness up precise",   repeating = true, locked = true })
+hl.bind("ALT + XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 1%-"), { description = "Brightness down precise",  repeating = true, locked = true })
 
 -- Media keys
-hl.bind("XF86AudioPlay",  hl.dsp.exec_cmd(osdclient .. " --playerctl play-pause"), { description = "Play/Pause", locked = true })
-hl.bind("XF86AudioPause", hl.dsp.exec_cmd(osdclient .. " --playerctl play-pause"), { description = "Pause",      locked = true })
-hl.bind("XF86AudioNext",  hl.dsp.exec_cmd(osdclient .. " --playerctl next"),        { description = "Next track", locked = true })
-hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd(osdclient .. " --playerctl previous"),    { description = "Previous track", locked = true })
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"))
+hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"))
+hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"))
+hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"))
 
 -- ── Screenshot ────────────────────────────────────────────
 hl.bind("Print", hl.dsp.exec_cmd('grim -g "$(slurp)" ~/Pictures/screenshot-$(date +%F_%T).png'))
 
 -- ── Laptop Lid ────────────────────────────────────────────
-hl.bind("switch:Lid Switch", hl.dsp.dpms({ action = "disable" }), { locked = true })
+--hl.bind("switch:Lid Switch", hl.dsp.dpms({ action = "disable" }), { locked = true })

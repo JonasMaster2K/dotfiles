@@ -5,15 +5,13 @@ import Quickshell
 
 import "../components/neomorphism/surfaces" as Surfaces
 import "../style"
-import "../services"
 import "../config"
 
-// import "./taskbarWidgets"
+// Bug:
+//  - Wenn island und bottom dann ist der margin nicht unten sondern oben
 
 Scope {
     id: scope
-
-    property var windowController: null
 
     Variants {
         id: variant
@@ -24,7 +22,6 @@ Scope {
             id: taskBar
 
             required property var modelData
-            property var windowController: scope.windowController
 
             anchors.left: ["top", "left", "bottom"].includes(Settings.taskBarPosition) ? true : false
             anchors.right: ["top", "bottom", "right"].includes(Settings.taskBarPosition) ? true : false
@@ -61,56 +58,23 @@ Scope {
                     anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
                     modules: Settings.taskBarLeftModules
+                    taskBarWindow: taskBar
                 }
 
                 TaskBarSection {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
                     modules: Settings.taskBarCenterModules
+                    taskBarWindow: taskBar
                 }
 
                 TaskBarSection {
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
                     modules: Settings.taskBarRightModules
+                    taskBarWindow: taskBar
                 }
-
-                /* LeftBarSection {
-                    anchors.left: parent.left
-                    anchors.verticalCenter: parent.verticalCenter
-                    popupController: taskBarController
-                }
-
-                WorkspaceSwitcher {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-
-                RightBarSection {
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    popupController: taskBarController
-                } */
             }
-
-            //TODO (überarbeiten?)
-            PopupController {
-                id: taskBarController
-
-                anchorWindow: taskBar
-            }
-
-            Component.onCompleted: {
-                NotificationService.targetWindow = taskBar;
-            }
-
-            /*
-            // TODO ???
-            BackgroundEffect.blurRegion: Region {
-                item: taskBarBackground
-                radius: Dimensions.taskBarRadius
-            }
-            */
         }
     }
 }

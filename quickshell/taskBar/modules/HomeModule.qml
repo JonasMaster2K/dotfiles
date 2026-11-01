@@ -5,6 +5,7 @@ import QtQuick
 import "../../components/neomorphism/buttons" as Buttons
 import "../../config"
 import "../../style"
+import "../panels"
 
 Buttons.Button {
     id: root
@@ -20,5 +21,15 @@ Buttons.Button {
     text: displayMode === "text" || displayMode === "iconText" ? displayName : ""
     elevation: Settings.taskBarWidgetStyle
 
-    onClicked: {}
+    // ========================================================================
+    // INTERACTION
+    // ========================================================================
+
+    onClicked: {
+        homePopup.toggle();
+    }
+
+    HomePanel {
+        id: homePopup
+    }
 }

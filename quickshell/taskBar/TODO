@@ -1,0 +1,14 @@
+Widgets:
+- Status-Revealer (nur sichtbar wenn es einen status gibt, Option einen Maximal anzahl ohne Revealer anzuzeigen oder gar kein Revealer und immer alle anzeigen):
+    - Flugzeug-Modus anzeige wenn aktiv
+    - Numlock aktiv
+    - Capslock aktiv
+    - Screen recording aktiv
+    - Camera aktiv
+    - Mikro aktiv
+    - Updates verfügbar
+- Workspace Switcher:
+    - Wenn ein Workspace nicht aktiv ist und dann die Apps transparent werden sollten Die maskiert sein, damit Die sich nicht überlagern sondern das Obere das Untere abschneidet
+
+Popups:
+- Notifications

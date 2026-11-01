@@ -9,6 +9,7 @@ import "../../components/neomorphism/feedback" as Feedback
 import "../../style"
 import "../../services"
 import "../../config"
+import "../panels"
 
 Buttons.Button {
     id: root
@@ -29,8 +30,6 @@ Buttons.Button {
     property real moduleSpacing: Dimensions.spacingMd
     property real moduleIconSize: Dimensions.taskBarIconSizeMd
     property color moduleIconColor: Colors.textPrimary
-
-    signal openRequested
 
     // ========================================================================
     // BUTTON
@@ -123,5 +122,11 @@ Buttons.Button {
     // INTERACTION
     // ========================================================================
 
-    onClicked: root.openRequested()
+    onClicked: {
+        quickControlsPopup.toggle();
+    }
+
+    QuickControlsPanel {
+        id: quickControlsPopup
+    }
 }

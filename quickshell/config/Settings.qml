@@ -35,11 +35,11 @@ QtObject {
     // island | band
     property string taskBarStyle: "band"
     // top | bottom ?? TODO: left & right ??
-    property string taskBarPosition: "top"
+    property string taskBarPosition: "bottom"
     // raised | flat
     property string taskBarWidgetStyle: "raised"
     // sm | md | lg
-    property string taskBarSize: "sm"
+    property string taskBarSize: "md"
 
     // =========================================================================
     // MODULES

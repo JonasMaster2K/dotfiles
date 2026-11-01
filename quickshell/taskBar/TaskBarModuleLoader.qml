@@ -41,6 +41,7 @@ Loader {
         Modules.HomeModule {
             displayName: root.displayName
             displayMode: root.displayMode
+            taskBarWindow: root.taskBarWindow
         }
     }
     Component {
@@ -48,6 +49,7 @@ Loader {
         Modules.SettingsModule {
             displayName: root.displayName
             displayMode: root.displayMode
+            taskBarWindow: root.taskBarWindow
         }
     }
     Component {
@@ -55,6 +57,7 @@ Loader {
         Modules.BrowserModule {
             displayName: root.displayName
             displayMode: root.displayMode
+            taskBarWindow: root.taskBarWindow
         }
     }
     Component {
@@ -62,6 +65,7 @@ Loader {
         Modules.FilesModule {
             displayName: root.displayName
             displayMode: root.displayMode
+            taskBarWindow: root.taskBarWindow
         }
     }
     Component {
@@ -69,25 +73,33 @@ Loader {
         Modules.TerminalModule {
             displayName: root.displayName
             displayMode: root.displayMode
+            taskBarWindow: root.taskBarWindow
         }
     }
     Component {
         id: workspacesComponent
-        Modules.WorkspacesModule {}
+        Modules.WorkspacesModule {
+            taskBarWindow: root.taskBarWindow
+        }
     }
     Component {
         id: dayHubComponent
-        Modules.DayHubModule {}
+        Modules.DayHubModule {
+            taskBarWindow: root.taskBarWindow
+        }
     }
     Component {
         id: quickControlsComponent
-        Modules.QuickControlsModule {}
+        Modules.QuickControlsModule {
+            taskBarWindow: root.taskBarWindow
+        }
     }
     Component {
         id: toolsComponent
         Modules.ToolsModule {
             displayName: root.displayName
             displayMode: root.displayMode
+            taskBarWindow: root.taskBarWindow
         }
     }
 }

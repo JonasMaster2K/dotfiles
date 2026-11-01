@@ -18,7 +18,7 @@ Singleton {
     property ListModel activeNotifications: ListModel {}
     property ListModel popupNotifications: ListModel {}
 
-    NotificationServer {
+    /* NotificationServer {
         id: server
 
         actionsSupported: true
@@ -58,5 +58,5 @@ Singleton {
                 }
             })
         }
-    }
+    } */
 }

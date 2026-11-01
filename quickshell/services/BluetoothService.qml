@@ -16,23 +16,13 @@ Singleton {
     readonly property bool enabled: adapter?.enabled ?? false
     readonly property bool discovering: adapter?.discovering ?? false
 
-    readonly property string iconName: enabled
-        ? "bluetooth-symbolic"
-        : "bluetooth-disabled-symbolic"
+    readonly property string iconName: enabled ? "bluetooth-symbolic" : "bluetooth-disabled-symbolic"
 
-    readonly property color iconColor: enabled
-        ? Theme.foreground
-        : Theme.warning
+    readonly property color iconColor: enabled ? Theme.foreground : Theme.warning
 
-    readonly property var pairedDevices: adapter
-        ? adapter.devices.values.filter(device =>
-            device.paired && displayName(device) !== "")
-        : []
+    readonly property var pairedDevices: adapter ? adapter.devices.values.filter(device => device.paired && displayName(device) !== "") : []
 
-    readonly property var availableDevices: adapter
-        ? adapter.devices.values.filter(device =>
-            !device.paired && displayName(device) !== "")
-        : []
+    readonly property var availableDevices: adapter ? adapter.devices.values.filter(device => !device.paired && displayName(device) !== "") : []
 
     // -------------------------------------------------------------------------
     // Pairing state
@@ -54,55 +44,55 @@ Singleton {
     // -------------------------------------------------------------------------
 
     function isHardwareIdentifier(value): bool {
-        const name = String(value || "").trim()
+        const name = String(value || "").trim();
 
         if (!name)
-            return true
+            return true;
 
         // Standard MAC address.
-        const compact = name.replace(/[\s:.-]/g, "")
+        const compact = name.replace(/[\s:.-]/g, "");
 
         if (/^[0-9a-f]{12}$/i.test(compact))
-            return true
+            return true;
 
         // Hex-only advertising IDs.
         if (/^(?:0x)?[0-9a-f]{8,}$/i.test(name))
-            return true
+            return true;
 
         // BlueZ-style dev_XX_XX_XX_XX_XX_XX path name.
         if (/^dev(?:[_:-][0-9a-f]{2}){6}$/i.test(name))
-            return true
+            return true;
 
-        return false
+        return false;
     }
 
     function displayName(device): string {
         if (!device)
-            return ""
+            return "";
 
-        const alias = String(device.name || "").trim()
-        const advertised = String(device.deviceName || "").trim()
+        const alias = String(device.name || "").trim();
+        const advertised = String(device.deviceName || "").trim();
 
         if (!isHardwareIdentifier(alias))
-            return alias
+            return alias;
 
         if (!isHardwareIdentifier(advertised))
-            return advertised
+            return advertised;
 
-        return ""
+        return "";
     }
 
     function deviceIcon(device): string {
-        const icon = String(device?.icon || "").trim()
-        return icon || "bluetooth-symbolic"
+        const icon = String(device?.icon || "").trim();
+        return icon || "bluetooth-symbolic";
     }
 
     function deviceBattery(device): string {
         if (!device?.batteryAvailable)
-            return ""
+            return "";
 
-        const battery = Math.max(0, Math.min(1, device.battery))
-        return Math.round(battery * 100) + "%"
+        const battery = Math.max(0, Math.min(1, device.battery));
+        return Math.round(battery * 100) + "%";
     }
 
     // -------------------------------------------------------------------------
@@ -111,36 +101,32 @@ Singleton {
 
     function toggleBluetooth(): void {
         if (!adapter)
-            return
-
-        adapter.enabled = !adapter.enabled
+            return;
+        adapter.enabled = !adapter.enabled;
     }
 
     function toggleScan(): void {
         if (!adapter || !adapter.enabled)
-            return
-
+            return;
         if (scanTimer.running) {
-            stopScan()
+            stopScan();
         } else {
-            startScan()
+            startScan();
         }
     }
 
     function startScan(): void {
         if (!adapter || !adapter.enabled || pairingBusy)
-            return
-
-        adapter.discovering = true
-        scanTimer.restart()
+            return;
+        adapter.discovering = true;
+        scanTimer.restart();
     }
 
     function stopScan(): void {
         if (!adapter)
-            return
-
-        adapter.discovering = false
-        scanTimer.stop()
+            return;
+        adapter.discovering = false;
+        scanTimer.stop();
     }
 
     // -------------------------------------------------------------------------
@@ -149,33 +135,28 @@ Singleton {
 
     function connectDevice(device): void {
         if (!adapter || !adapter.enabled || !device)
-            return
-
+            return;
         if (device.connected || device.pairing)
-            return
-
-        device.connect()
+            return;
+        device.connect();
     }
 
     function disconnectDevice(device): void {
         if (!device || !device.connected)
-            return
-
-        device.disconnect()
+            return;
+        device.disconnect();
     }
 
     function forgetDevice(device): void {
         if (!device || !device.paired || device.pairing)
-            return
-
-        device.forget()
+            return;
+        device.forget();
     }
 
     function toggleTrust(device): void {
         if (!adapter || !adapter.enabled || !device || device.pairing)
-            return
-
-        device.trusted = !device.trusted
+            return;
+        device.trusted = !device.trusted;
     }
 
     // -------------------------------------------------------------------------
@@ -184,57 +165,40 @@ Singleton {
 
     function pairDevice(device): void {
         if (!adapter || !adapter.enabled || !device)
-            return
-
+            return;
         if (pairingBusy) {
-            console.warn(
-                "Bluetooth pairing already active:",
-                pairingDeviceName
-            )
-            return
+            console.warn("Bluetooth pairing already active:", pairingDeviceName);
+            return;
         }
 
         if (device.paired || device.pairing)
-            return
-
+            return;
         if (adapter.discovering || scanTimer.running)
-            stopScan()
+            stopScan();
 
-        pairingDevice = device
-        pairingDeviceName = displayName(device)
+        pairingDevice = device;
+        pairingDeviceName = displayName(device);
 
-        pairingPasskey = ""
-        pairingEntered = 0
+        pairingPasskey = "";
+        pairingEntered = 0;
 
         // sofort öffnen
-        pairingPromptVisible = true
+        pairingPromptVisible = true;
 
-        console.log(
-            "Starting Bluetooth pairing:",
-            pairingDeviceName
-        )
-
-        device.pair()
+        device.pair();
     }
 
     function finishPairing(): void {
-        if (pairingDevice) {
-            console.log(
-                "Bluetooth pairing finished:",
-                pairingDeviceName
-            )
-        }
+        pairingDevice = null;
 
-        pairingDevice = null
-
-        clearPairingPrompt()
+        clearPairingPrompt();
     }
 
     function clearPairingPrompt(): void {
-        pairingPromptVisible = false
-        pairingPasskey = ""
-        pairingEntered = 0
-        pairingDeviceName = ""
+        pairingPromptVisible = false;
+        pairingPasskey = "";
+        pairingEntered = 0;
+        pairingDeviceName = "";
     }
 
     // Observe the device currently being paired.
@@ -244,33 +208,21 @@ Singleton {
 
         function onPairedChanged() {
             if (!root.pairingDevice)
-                return
-
-            console.log(
-                "Bluetooth paired changed:",
-                root.pairingDevice.paired
-            )
-
+                return;
             if (root.pairingDevice.paired)
-                root.finishPairing()
+                root.finishPairing();
         }
 
         function onPairingChanged() {
             if (!root.pairingDevice)
-                return
-
-            console.log(
-                "Bluetooth pairing changed:",
-                root.pairingDevice.pairing
-            )
+                return;
 
             /*
              * If pairing stopped and the device did not become paired,
              * the attempt failed/cancelled.
              */
-            if (!root.pairingDevice.pairing
-                    && !root.pairingDevice.paired) {
-                root.finishPairing()
+            if (!root.pairingDevice.pairing && !root.pairingDevice.paired) {
+                root.finishPairing();
             }
         }
     }
@@ -285,15 +237,11 @@ Singleton {
          * ANSI escape/control sequences. Remove the common ones before
          * parsing human-readable content.
          */
-        return String(value || "")
-            .replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, "")
-            .replace(/\r/g, "")
+        return String(value || "").replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, "").replace(/\r/g, "");
     }
 
     function handleAgentOutput(data): void {
-        const raw = String(data || "")
-
-        console.log("BT RAW:", JSON.stringify(raw))
+        const raw = String(data || "");
 
         // -------------------------------------------------------------
         // Passkey + entered aus der ANSI-Ausgabe von bluetoothctl lesen
@@ -310,21 +258,19 @@ Singleton {
         * verwenden.
         */
 
-        const passkeyIndex = raw.indexOf("Passkey:")
+        const passkeyIndex = raw.indexOf("Passkey:");
 
         if (passkeyIndex !== -1) {
-            const passkeyPart = raw.substring(passkeyIndex)
+            const passkeyPart = raw.substring(passkeyIndex);
 
             // Alle ANSI-Codes entfernen -> eigentlichen Passkey bekommen.
-            const cleanPasskeyPart = stripAnsi(passkeyPart)
+            const cleanPasskeyPart = stripAnsi(passkeyPart);
 
-            const passkeyMatch = cleanPasskeyPart.match(
-                /Passkey:\s*([0-9]{6})/
-            )
+            const passkeyMatch = cleanPasskeyPart.match(/Passkey:\s*([0-9]{6})/);
 
             if (passkeyMatch) {
-                pairingPasskey = passkeyMatch[1]
-                pairingPromptVisible = true
+                pairingPasskey = passkeyMatch[1];
+                pairingPromptVisible = true;
             }
 
             /*
@@ -341,63 +287,37 @@ Singleton {
             * digits
             * white ANSI
             */
-            const enteredMatch = passkeyPart.match(
-                /\x1B\[[0-9;]*90m([0-9]{0,6})\x1B\[[0-9;]*97m/
-            )
+            const enteredMatch = passkeyPart.match(/\x1B\[[0-9;]*90m([0-9]{0,6})\x1B\[[0-9;]*97m/);
 
             if (enteredMatch) {
-                pairingEntered = enteredMatch[1].length
-
-                console.log(
-                    "Bluetooth entered:",
-                    pairingEntered
-                )
+                pairingEntered = enteredMatch[1].length;
             }
 
-            console.log(
-                "Bluetooth passkey:",
-                pairingPasskey,
-                "entered:",
-                pairingEntered
-            )
-
-            return
+            return;
         }
 
         // -------------------------------------------------------------
         // PIN
         // -------------------------------------------------------------
 
-        const text = stripAnsi(raw)
+        const text = stripAnsi(raw);
 
-        const pinMatch = text.match(
-            /PIN(?:\s+code)?:\s*([0-9]+)/i
-        )
+        const pinMatch = text.match(/PIN(?:\s+code)?:\s*([0-9]+)/i);
 
         if (pinMatch) {
-            pairingPasskey = pinMatch[1]
-            pairingEntered = 0
-            pairingPromptVisible = true
+            pairingPasskey = pinMatch[1];
+            pairingEntered = 0;
+            pairingPromptVisible = true;
 
-            console.log(
-                "Bluetooth PIN:",
-                pairingPasskey
-            )
-
-            return
+            return;
         }
 
         // -------------------------------------------------------------
         // Abschluss / Fehler
         // -------------------------------------------------------------
 
-        if (
-            text.includes("Pairing successful")
-            || text.includes("AuthenticationCanceled")
-            || text.includes("AuthenticationFailed")
-            || text.includes("AuthenticationRejected")
-        ) {
-            finishPairing()
+        if (text.includes("Pairing successful") || text.includes("AuthenticationCanceled") || text.includes("AuthenticationFailed") || text.includes("AuthenticationRejected")) {
+            finishPairing();
         }
     }
 
@@ -413,7 +333,7 @@ Singleton {
 
         onTriggered: {
             if (root.adapter)
-                root.adapter.discovering = false
+                root.adapter.discovering = false;
         }
     }
 
@@ -426,11 +346,7 @@ Singleton {
 
         running: true
 
-        command: [
-            "bluetoothctl",
-            "--agent",
-            "KeyboardDisplay"
-        ]
+        command: ["bluetoothctl", "--agent", "KeyboardDisplay"]
 
         stdout: SplitParser {
             onRead: data => root.handleAgentOutput(data)
@@ -438,10 +354,7 @@ Singleton {
 
         stderr: SplitParser {
             onRead: data => {
-                console.warn(
-                    "BT ERR:",
-                    JSON.stringify(data)
-                )
+                console.warn("BT ERR:", JSON.stringify(data));
             }
         }
     }
