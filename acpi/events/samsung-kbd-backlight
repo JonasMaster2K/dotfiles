@@ -1,2 +1,0 @@
-event=samsung-galaxybook SAM0430:00 0000007d
-action=/etc/acpi/samsung-kbd-backlight.sh

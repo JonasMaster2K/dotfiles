@@ -7,12 +7,12 @@ import "../../style"
 // - Alignment (Start, Center, End) sollte davon abhängen in welcher Taskbar Group das Widget ist
 
 Surfaces.Popup {
+    mode: Surfaces.Popup.Mode.Taskbar
     alignment: Surfaces.Popup.Alignment.End
 
     autoSizeWidth: false
     autoSizeHeight: true
     Column {
-        width: Dimensions.popupMinWidth
         spacing: 10
 
         Text {

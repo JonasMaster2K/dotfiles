@@ -12,7 +12,6 @@ Surfaces.Popup {
     autoSizeWidth: false
     autoSizeHeight: true
     Column {
-        width: Dimensions.popupMinWidth
         spacing: 10
 
         Text {

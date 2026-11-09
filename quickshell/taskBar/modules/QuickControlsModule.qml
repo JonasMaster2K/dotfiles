@@ -90,7 +90,7 @@ Buttons.Button {
                 id: audioHover
             }
             Feedback.ToolTip {
-                text: Math.round(AudioService.volume) + "% volume"
+                text: "Volume: " + AudioService.volumePercent + "%"
                 visible: audioHover.hovered
                 targetItem: audioIcon
                 xOff: audioIcon.implicitWidth / 2 - implicitWidth / 2

@@ -7,10 +7,12 @@ import "../../../style"
 import "../../../config"
 import "../surfaces" as Surfaces
 
-//TODO: Reveal-Animation, zweiter Modus endweder als island oder an der taskbar dran mit rundungen dann
-
 PanelWindow {
     id: popup
+
+    // -------------------------------------------------------------------------
+    // Enums
+    // -------------------------------------------------------------------------
 
     enum Alignment {
         Start,
@@ -19,50 +21,116 @@ PanelWindow {
     }
 
     enum Mode {
-        Floating,
-        Attached,
-        Island
+        Taskbar,
+        OSD
     }
+
+    enum Edge {
+        Left,
+        Right,
+        Top,
+        Bottom
+    }
+
+    // -------------------------------------------------------------------------
+    // Public API
+    // -------------------------------------------------------------------------
 
     default property alias content: contentContainer.data
 
+    property int mode: Surfaces.Popup.Mode.Taskbar
     property int alignment: Surfaces.Popup.Alignment.Center
-    property int mode: Surfaces.Popup.Mode.Floating //TODO
+    property int edge: Surfaces.Popup.Edge.Bottom
 
-    property bool autoSizeWidth: false
-    property bool autoSizeHeight: false
+    property real freeX: (Screen.width - width) / 2
+    property real freeY: (Screen.height - height) / 2
+
+    property bool autoSizeWidth: true
+    property bool autoSizeHeight: true
 
     property bool closeOnFocusLost: true
     property bool visibleRequested: false
 
-    property real margin: Dimensions.spacingMd
+    property real margin: Dimensions.spacingSm
     property real padding: Dimensions.spacingXs
 
     property real minimumWidth: 0 + 2 * Dimensions.spacingMd
     property real minimumHeight: 0 + 2 * Dimensions.spacingMd
+
     property real maximumWidth: Screen.width - (["right", "left"].includes(Settings.taskBarPosition) ? (Dimensions.taskBarHeight + padding * 2) : (padding * 2 + margin * 2))
     property real maximumHeight: Screen.height - (["top", "bottom"].includes(Settings.taskBarPosition) ? (Dimensions.taskBarHeight + padding * 2) : (padding * 2 + margin * 2))
 
-    property real fixedWidth: 600
-    property real fixedHeight: 1000
+    property real fixedWidth: Dimensions.popupMinWidth
+    property real fixedHeight: Dimensions.popupMinWidth //TODO: minHeight
 
-    readonly property real calculatedWidth: Math.max(minimumWidth, Math.min((autoSizeWidth ? contentContainer.childrenRect.width : fixedWidth), maximumWidth))
-    readonly property real calculatedHeight: Math.max(minimumHeight, Math.min((autoSizeHeight ? contentContainer.childrenRect.height : fixedHeight), maximumHeight))
+    // -------------------------------------------------------------------------
+    // Calculations
+    // -------------------------------------------------------------------------
+
+    readonly property real contentWidth: contentContainer.childrenRect.width
+    readonly property real contentHeight: contentContainer.childrenRect.height
+
+    readonly property real calculatedWidth: Math.max(minimumWidth, Math.min(autoSizeWidth ? contentWidth : fixedWidth, maximumWidth))
+    readonly property real calculatedHeight: Math.max(minimumHeight, Math.min(autoSizeHeight ? contentHeight : fixedHeight, maximumHeight))
+
+    // -------------------------------------------------------------------------
+    // OSD positioning
+    // -------------------------------------------------------------------------
+
+    readonly property bool osdSharesTaskbarEdge: {
+        switch (edge) {
+        case Surfaces.Popup.Edge.Left:
+            return Settings.taskBarPosition === "left";
+        case Surfaces.Popup.Edge.Right:
+            return Settings.taskBarPosition === "right";
+        case Surfaces.Popup.Edge.Top:
+            return Settings.taskBarPosition === "top";
+        case Surfaces.Popup.Edge.Bottom:
+            return Settings.taskBarPosition === "bottom";
+        default:
+            return false;
+        }
+    }
+
+    readonly property real osdEdgeMargin: Dimensions.spacingXl + (osdSharesTaskbarEdge ? Dimensions.taskBarHeight : 0)
+
+    // -------------------------------------------------------------------------
+    // Window configuration
+    // -------------------------------------------------------------------------
 
     implicitHeight: popupBackground.implicitHeight + padding * 2
     implicitWidth: popupBackground.implicitWidth + padding * 2
 
     aboveWindows: true
     focusable: true
-    exclusionMode: ExclusionMode.Normal
+    exclusionMode: mode === Surfaces.Popup.Mode.OSD ? ExclusionMode.Ignore : ExclusionMode.Normal
     visible: false
 
-    anchors.top: (Settings.taskBarPosition == "top" || (alignment == Surfaces.Popup.Alignment.Start && Settings.taskBarPosition != "bottom"))
-    anchors.bottom: (Settings.taskBarPosition == "bottom" || (alignment == Surfaces.Popup.Alignment.End && Settings.taskBarPosition != "top"))
-    anchors.left: (Settings.taskBarPosition == "left" || (alignment == Surfaces.Popup.Alignment.Start && Settings.taskBarPosition != "right"))
-    anchors.right: (Settings.taskBarPosition == "right" || (alignment == Surfaces.Popup.Alignment.End && Settings.taskBarPosition != "left"))
-
     color: Colors.transparent
+
+    // -------------------------------------------------------------------------
+    // PanelWindow anchors
+    // -------------------------------------------------------------------------
+
+    // Taskbar: Original anchoring logic, unchanged.
+    // OSD: Anchoring is controlled exclusively by edge.
+    // Free / Anchor: No automatic anchoring.
+    anchors.top: mode == Surfaces.Popup.Mode.Taskbar ? (Settings.taskBarPosition == "top" || (alignment == Surfaces.Popup.Alignment.Start && Settings.taskBarPosition != "bottom")) : mode == Surfaces.Popup.Mode.OSD ? edge == Surfaces.Popup.Edge.Top : false
+    anchors.bottom: mode == Surfaces.Popup.Mode.Taskbar ? (Settings.taskBarPosition == "bottom" || (alignment == Surfaces.Popup.Alignment.End && Settings.taskBarPosition != "top")) : mode == Surfaces.Popup.Mode.OSD ? edge == Surfaces.Popup.Edge.Bottom : false
+    anchors.left: mode == Surfaces.Popup.Mode.Taskbar ? (Settings.taskBarPosition == "left" || (alignment == Surfaces.Popup.Alignment.Start && Settings.taskBarPosition != "right")) : mode == Surfaces.Popup.Mode.OSD ? edge == Surfaces.Popup.Edge.Left : false
+    anchors.right: mode == Surfaces.Popup.Mode.Taskbar ? (Settings.taskBarPosition == "right" || (alignment == Surfaces.Popup.Alignment.End && Settings.taskBarPosition != "left")) : mode == Surfaces.Popup.Mode.OSD ? edge == Surfaces.Popup.Edge.Right : false
+
+    // OSD: Only the selected edge receives a margin.
+    margins {
+        left: mode == Surfaces.Popup.Mode.OSD && edge == Surfaces.Popup.Edge.Left ? osdEdgeMargin : 0
+        right: mode == Surfaces.Popup.Mode.OSD && edge == Surfaces.Popup.Edge.Right ? osdEdgeMargin : 0
+        top: mode == Surfaces.Popup.Mode.OSD && edge == Surfaces.Popup.Edge.Top ? osdEdgeMargin : 0
+        bottom: mode == Surfaces.Popup.Mode.OSD && edge == Surfaces.Popup.Edge.Bottom ? osdEdgeMargin : 0
+    }
+
+    // -------------------------------------------------------------------------
+    // Visual content
+    // -------------------------------------------------------------------------
 
     Item {
         id: mask
@@ -86,18 +154,39 @@ PanelWindow {
             opacity: animationProgress
 
             transformOrigin: {
-                switch (Settings.taskBarPosition) {
-                case "top":
-                    return popup.alignment == Surfaces.Popup.Alignment.Start ? Item.TopLeft : popup.alignment == Surfaces.Popup.Alignment.End ? Item.TopRight : Item.Top;
-                case "bottom":
-                    return popup.alignment == Surfaces.Popup.Alignment.Start ? Item.BottomLeft : popup.alignment == Surfaces.Popup.Alignment.End ? Item.BottomRight : Item.Bottom;
-                case "left":
-                    return popup.alignment == Surfaces.Popup.Alignment.Start ? Item.TopLeft : popup.alignment == Surfaces.Popup.Alignment.End ? Item.BottomLeft : Item.Left;
-                case "right":
-                    return popup.alignment == Surfaces.Popup.Alignment.Start ? Item.TopRight : popup.alignment == Surfaces.Popup.Alignment.End ? Item.BottomRight : Item.Right;
-                default:
-                    return Item.Center;
+                // OSD: Animate from the selected edge.
+                if (popup.mode === Surfaces.Popup.Mode.OSD) {
+                    switch (popup.edge) {
+                    case Surfaces.Popup.Edge.Left:
+                        return Item.Left;
+                    case Surfaces.Popup.Edge.Right:
+                        return Item.Right;
+                    case Surfaces.Popup.Edge.Top:
+                        return Item.Top;
+                    case Surfaces.Popup.Edge.Bottom:
+                        return Item.Bottom;
+                    default:
+                        return Item.Center;
+                    }
                 }
+
+                // Taskbar: Original transform origin calculation.
+                if (popup.mode === Surfaces.Popup.Mode.Taskbar) {
+                    switch (Settings.taskBarPosition) {
+                    case "top":
+                        return popup.alignment == Surfaces.Popup.Alignment.Start ? Item.TopLeft : popup.alignment == Surfaces.Popup.Alignment.End ? Item.TopRight : Item.Top;
+                    case "bottom":
+                        return popup.alignment == Surfaces.Popup.Alignment.Start ? Item.BottomLeft : popup.alignment == Surfaces.Popup.Alignment.End ? Item.BottomRight : Item.Bottom;
+                    case "left":
+                        return popup.alignment == Surfaces.Popup.Alignment.Start ? Item.TopLeft : popup.alignment == Surfaces.Popup.Alignment.End ? Item.BottomLeft : Item.Left;
+                    case "right":
+                        return popup.alignment == Surfaces.Popup.Alignment.Start ? Item.TopRight : popup.alignment == Surfaces.Popup.Alignment.End ? Item.BottomRight : Item.Right;
+                    default:
+                        return Item.Center;
+                    }
+                }
+
+                return Item.Center;
             }
 
             Behavior on animationProgress {
@@ -110,12 +199,12 @@ PanelWindow {
             Surfaces.Card {
                 id: popupBackground
 
-                anchors.centerIn: mask
+                anchors.centerIn: parent
 
-                implicitHeight: popup.calculatedHeight + popup.margin * 2
                 implicitWidth: popup.calculatedWidth + popup.margin * 2
+                implicitHeight: popup.calculatedHeight + popup.margin * 2
 
-                cornerRadius: Dimensions.radiusLg
+                cornerRadius: popup.mode === Surfaces.Popup.Mode.OSD ? Dimensions.radiusPill : Dimensions.radiusLg
 
                 elevation: "flat"
             }
@@ -125,13 +214,17 @@ PanelWindow {
 
                 anchors.centerIn: popupBackground
 
-                implicitHeight: popup.calculatedHeight
                 implicitWidth: popup.calculatedWidth
+                implicitHeight: popup.calculatedHeight
 
                 clip: true
             }
         }
     }
+
+    // -------------------------------------------------------------------------
+    // Focus handling
+    // -------------------------------------------------------------------------
 
     HyprlandFocusGrab {
         active: popup.closeOnFocusLost && popup.visible && popup.visibleRequested
@@ -141,6 +234,10 @@ PanelWindow {
         onCleared: popup.hide()
     }
 
+    // -------------------------------------------------------------------------
+    // Popup controls
+    // -------------------------------------------------------------------------
+
     function show() {
         closeDelayTimer.stop();
 
@@ -148,6 +245,8 @@ PanelWindow {
         visibleRequested = true;
 
         animationContainer.animationProgress = 1.0;
+
+        contentContainer.forceActiveFocus();
     }
 
     function hide() {
@@ -167,6 +266,10 @@ PanelWindow {
         else
             show();
     }
+
+    // -------------------------------------------------------------------------
+    // Timers
+    // -------------------------------------------------------------------------
 
     Timer {
         id: closeDelayTimer

@@ -9,3 +9,4 @@ singleton WorkspaceService 1.0 WorkspaceService.qml
 singleton NotificationService 1.0 NotificationService.qml
 singleton WeatherService 1.0 WeatherService.qml
 singleton SystemSettingsService 1.0 SystemSettingsService.qml
+singleton KeyboardService 1.0 KeyboardService.qml

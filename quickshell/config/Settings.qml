@@ -10,8 +10,10 @@ QtObject {
     // APPEARANCE
     // =========================================================================
 
-    property bool darkMode: true
+    property bool darkMode: false
     property bool useMatugen: false
+    // neomorphism | liquid glass -- TODO
+    property string design: "neomorphism"
 
     // =========================================================================
     // SCALING
@@ -20,7 +22,7 @@ QtObject {
     property real uiScale: 1.0
     property real fontScale: 1.0
 
-    readonly property real scale: Math.max(0.75, Math.min(uiScale, 10.0))
+    readonly property real scale: Math.max(0.75, Math.min(uiScale, 2.0))
 
     // =========================================================================
     // ACCESSIBILITY
@@ -34,12 +36,23 @@ QtObject {
 
     // island | band
     property string taskBarStyle: "band"
-    // top | bottom ?? TODO: left & right ??
+    // top | bottom -- TODO: left & right
     property string taskBarPosition: "bottom"
-    // raised | flat
+    // raised | flat | sunken
     property string taskBarWidgetStyle: "raised"
     // sm | md | lg
     property string taskBarSize: "md"
+    // TODO
+    property bool taskBarTransparent: false
+
+    // =========================================================================
+    // OSD STYLE
+    // =========================================================================
+    property real osdTimeout: 1500
+    // left | right | bottom
+    property string volumeOsdPosition: "right"
+    // left | right | bottom
+    property string keyboardOsdPosition: "bottom"
 
     // =========================================================================
     // MODULES

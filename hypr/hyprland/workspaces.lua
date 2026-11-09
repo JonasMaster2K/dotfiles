@@ -8,4 +8,10 @@
 --})
 
 --hl.workspace_rule({ workspace = "2", on_created_empty = "zen-browser" })
-hl.workspace_rule({ workspace = "special:scratchpad", on_created_empty = "kitty" })
+
+hl.on("workspace.created", function(workspace)
+    -- Check if it matches your target workspace name and is empty
+    if workspace.name == "special:scratchpad" and workspace.is_empty then
+        hl.exec_cmd("kitty")
+    end
+end)

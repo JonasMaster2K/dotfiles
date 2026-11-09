@@ -54,7 +54,6 @@ Surfaces.Revealer {
     revealedContent: [
         Row {
             spacing: control.toolSpacing
-            anchors.verticalCenter: control.verticalCenter
             height: Dimensions.taskBarWidgetSizeMd
             leftPadding: control.direction == "left" ? Dimensions.spacingXs : 0
             rightPadding: control.direction == "right" ? Dimensions.spacingXs : 0

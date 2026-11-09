@@ -7,16 +7,56 @@ import Quickshell.Services.Pipewire
 import "../style"
 
 Singleton {
-    readonly property bool available: true
-    readonly property bool enabled: true
-    readonly property color iconColor: muted ? Theme.warning : volume == 0 ? Theme.warning : volume < 66 ? Theme.foreground : Theme.error
-    readonly property string iconName: "audio-volume-" + (muted ? "muted" : volume <= 0 ? "off" : volume < 33 ? "low" : volume < 66 ? "medium" : "high") + "-symbolic"
-    readonly property bool muted: output?.muted ?? false
+    id: root
+
+    // PIPEWIRE
+
     readonly property PwNode node: Pipewire.defaultAudioSink
     readonly property PwNodeAudio output: node?.audio ?? null
-    readonly property int volume: output?.volume * 100 ?? 0
 
     PwObjectTracker {
-        objects: [node]
+        objects: [root.node]
     }
+
+    // STATE
+
+    readonly property bool available: node !== null && output !== null
+    readonly property bool enabled: available
+
+    readonly property real volume: output?.volume ?? 0
+    readonly property int volumePercent: Math.round(volume * 100)
+
+    readonly property bool muted: output?.muted ?? true
+
+    // PRESENTATION
+
+    readonly property string iconName: {
+        if (muted || volumePercent === 0)
+            return "audio-volume-muted-symbolic";
+
+        if (volumePercent < 33)
+            return "audio-volume-low-symbolic";
+
+        if (volumePercent < 66)
+            return "audio-volume-medium-symbolic";
+
+        return "audio-volume-high-symbolic";
+    }
+
+    readonly property color iconColor: {
+        if (!available)
+            return Theme.foreground;
+
+        if (muted || volumePercent === 0)
+            return Theme.warning;
+
+        if (volumePercent >= 90)
+            return Theme.error;
+
+        return Theme.foreground;
+    }
+
+    // OSD
+
+    readonly property int osdSignal: volumePercent
 }

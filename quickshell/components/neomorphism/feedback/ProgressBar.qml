@@ -21,13 +21,18 @@ Controls.ProgressBar {
     property color accentColor: Colors.accent
 
     property real borderSize: 1 * Settings.scale
-    property real cornerRadius: height / 2
+    property real valueSpacing: Dimensions.spacingSm * Settings.scale
+
+    property string orientation: "horizontal"
+    property string valuePosition: "end"
+
+    readonly property bool vertical: orientation === "vertical"
 
     // =========================================================================
-    // SIZES
+    // DIMENSIONS
     // =========================================================================
 
-    readonly property real trackHeight: {
+    readonly property real defaultThickness: {
         switch (sizeVariant) {
         case "xs":
             return 6 * Settings.scale;
@@ -42,28 +47,68 @@ Controls.ProgressBar {
         }
     }
 
-    readonly property real innerWidth: Math.max(0, width - 2 * borderSize)
+    property real length: 220 * Settings.scale
+    property real thickness: defaultThickness
 
-    readonly property real innerHeight: Math.max(0, trackHeight - 2 * borderSize)
+    // =========================================================================
+    // LABEL SIZE
+    // =========================================================================
 
-    implicitWidth: 220 * Settings.scale
+    readonly property real valueWidth: showValue ? valueLabel.implicitWidth : 0
 
-    implicitHeight: trackHeight + (showValue ? Dimensions.spacingLg + valueLabel.implicitHeight : 0)
+    readonly property real valueHeight: showValue ? valueLabel.implicitHeight : 0
+
+    readonly property real labelOffset: showValue && valuePosition !== "center" ? valueSpacing : 0
+
+    // =========================================================================
+    // COMPONENT SIZE
+    // =========================================================================
+
+    readonly property real baseWidth: vertical ? thickness : length
+    readonly property real baseHeight: vertical ? length : thickness
+
+    readonly property real extraWidth: showValue && ((!vertical && valuePosition !== "center") || (vertical && valuePosition === "center")) ? valueWidth + valueSpacing : 0
+
+    readonly property real extraHeight: showValue && ((vertical && valuePosition !== "center") || (!vertical && valuePosition === "center")) ? valueHeight + valueSpacing : 0
+
+    implicitWidth: baseWidth + extraWidth
+    implicitHeight: baseHeight + extraHeight
+
+    width: implicitWidth
+    height: implicitHeight
+
+    // =========================================================================
+    // TRACK GEOMETRY
+    // =========================================================================
+
+    readonly property real trackWidth: vertical ? thickness : length
+
+    readonly property real trackHeight: vertical ? length : thickness
+
+    readonly property real trackX: vertical ? (width - trackWidth) / 2 : showValue && valuePosition === "start" ? valueWidth + valueSpacing : 0
+
+    readonly property real trackY: vertical && showValue && valuePosition === "start" ? valueHeight + valueSpacing : 0
+
+    readonly property real innerTrackWidth: Math.max(0, trackWidth - 2 * borderSize)
+
+    readonly property real innerTrackHeight: Math.max(0, trackHeight - 2 * borderSize)
+
+    readonly property real effectiveCornerRadius: Math.min(trackWidth, trackHeight) / 2
 
     // =========================================================================
     // BACKGROUND
     // =========================================================================
 
     background: Surfaces.Surface {
-        x: 0
-        y: 0
+        x: control.trackX
+        y: control.trackY
 
-        width: control.width
+        width: control.trackWidth
         height: control.trackHeight
 
         elevation: control.elevation
         borderSize: control.borderSize
-        cornerRadius: control.cornerRadius
+        cornerRadius: control.effectiveCornerRadius
 
         surfaceColor: Colors.surface
     }
@@ -76,7 +121,7 @@ Controls.ProgressBar {
         id: progressContent
 
         // ---------------------------------------------------------------------
-        // NORMAL PROGRESS FILL
+        // NORMAL PROGRESS
         // ---------------------------------------------------------------------
 
         Rectangle {
@@ -84,17 +129,28 @@ Controls.ProgressBar {
 
             visible: !control.indeterminate
 
-            x: control.borderSize
-            y: control.borderSize
+            x: control.trackX + control.borderSize
 
-            width: control.innerWidth * control.visualPosition
-            height: control.innerHeight
+            y: control.vertical ? control.trackY + control.borderSize + control.innerTrackHeight - height : control.trackY + control.borderSize
 
-            radius: height / 2
+            width: control.vertical ? control.innerTrackWidth : control.innerTrackWidth * control.position
+
+            height: control.vertical ? control.innerTrackHeight * control.position : control.innerTrackHeight
+
+            radius: Math.min(width, height) / 2
             color: control.accentColor
 
             Behavior on width {
-                enabled: !control.indeterminate
+                enabled: !control.vertical
+
+                NumberAnimation {
+                    duration: Animations.animationFast
+                    easing.type: Easing.OutCubic
+                }
+            }
+
+            Behavior on height {
+                enabled: control.vertical
 
                 NumberAnimation {
                     duration: Animations.animationFast
@@ -104,49 +160,53 @@ Controls.ProgressBar {
         }
 
         // ---------------------------------------------------------------------
-        // INDETERMINATE PROGRESS FILL
-        //
-        // No OpacityMask or clipping texture.
-        // The segment shrinks when entering/leaving the track.
+        // INDETERMINATE PROGRESS
         // ---------------------------------------------------------------------
 
-        Rectangle {
-            id: busyFill
+        Item {
+            id: busyTrack
 
             visible: control.indeterminate
 
-            readonly property real trackWidth: control.innerWidth
-            readonly property real segmentWidth: trackWidth * 0.3
+            x: control.trackX + control.borderSize
+            y: control.trackY + control.borderSize
 
-            property real progress: 0
+            width: control.innerTrackWidth
+            height: control.innerTrackHeight
 
-            readonly property real segmentStart: progress * (trackWidth + segmentWidth) - segmentWidth
+            clip: true
 
-            readonly property real segmentEnd: segmentStart + segmentWidth
+            Rectangle {
+                id: busyFill
 
-            readonly property real visibleStart: Math.max(0, segmentStart)
+                property real progress: 0
 
-            readonly property real visibleEnd: Math.min(trackWidth, segmentEnd)
+                readonly property real availableLength: control.vertical ? busyTrack.height : busyTrack.width
 
-            x: control.borderSize + visibleStart
-            y: control.borderSize
+                readonly property real segmentLength: availableLength * 0.3
 
-            width: Math.max(0, visibleEnd - visibleStart)
-            height: control.innerHeight
+                width: control.vertical ? busyTrack.width : segmentLength
 
-            radius: Math.min(height / 2, width / 2)
-            color: control.accentColor
+                height: control.vertical ? segmentLength : busyTrack.height
 
-            SequentialAnimation on progress {
-                running: control.indeterminate && control.visible && control.width > 0
+                x: control.vertical ? 0 : progress * (availableLength + segmentLength) - segmentLength
 
-                loops: Animation.Infinite
+                y: control.vertical ? availableLength - progress * (availableLength + segmentLength) : 0
 
-                NumberAnimation {
-                    from: 0
-                    to: 1
-                    duration: 1250
-                    easing.type: Easing.InOutSine
+                radius: Math.min(width, height)
+                color: control.accentColor
+
+                SequentialAnimation on progress {
+                    running: control.indeterminate && control.visible && busyTrack.width > 0 && busyTrack.height > 0
+
+                    loops: Animation.Infinite
+
+                    NumberAnimation {
+                        from: 0
+                        to: 1
+                        duration: 1250
+                        easing.type: Easing.InOutSine
+                    }
                 }
             }
         }
@@ -161,17 +221,47 @@ Controls.ProgressBar {
 
         visible: control.showValue && !control.indeterminate
 
-        anchors.top: parent.top
-        anchors.topMargin: control.trackHeight + Dimensions.spacingSm
+        x: {
+            if (control.vertical)
+                return (control.width - width) / 2;
 
-        anchors.horizontalCenter: parent.horizontalCenter
+            switch (control.valuePosition) {
+            case "start":
+                return 0;
+            case "end":
+                return control.width - width;
+            default:
+                return (control.width - width) / 2;
+            }
+        }
+
+        y: {
+            if (control.vertical) {
+                switch (control.valuePosition) {
+                case "start":
+                    return 0;
+                case "end":
+                    return control.trackY + control.trackHeight + control.valueSpacing;
+                default:
+                    return (control.height - height) / 2;
+                }
+            }
+
+            if (control.valuePosition === "center")
+                return control.trackY + control.trackHeight + control.valueSpacing;
+
+            return (control.height - height) / 2;
+        }
 
         text: Math.round(control.position * 100) + control.valueSuffix
 
         color: Colors.textSecondary
 
         font.family: Typography.fontFamilyBody
-        font.pixelSize: Typography.labelSize
+        font.pixelSize: Typography.labelSize * Settings.scale
+
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
     }
 
     // =========================================================================
