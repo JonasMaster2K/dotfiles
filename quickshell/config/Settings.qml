@@ -50,9 +50,19 @@ QtObject {
     // =========================================================================
     property real osdTimeout: 1500
     // left | right | bottom
+    property string batteryOsdPosition: "bottom"
+    // left | right | bottom
     property string volumeOsdPosition: "right"
     // left | right | bottom
+    property string microphoneOsdPosition: "right"
+    // left | right | bottom
     property string keyboardOsdPosition: "bottom"
+    // left | right | bottom
+    property string capslockOsdPosition: "right"
+    // left | right | bottom
+    property string numlockOsdPosition: "right"
+    // left | right | bottom
+    property string displayBrightnessOsdPosition: "right"
 
     // =========================================================================
     // MODULES

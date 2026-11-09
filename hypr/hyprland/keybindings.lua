@@ -97,15 +97,11 @@ hl.bind(mod .. " + 0",              hl.dsp.focus({workspace = 10}))
 hl.bind(mod .. " + SHIFT + 0",      hl.dsp.window.move({ workspace = 10, follow = true }))
 
 -- ── Fn-Keys ───────────────────────────────────────────────
-
--- Caps-Lock
-hl.bind("Caps_Lock", hl.dsp.exec_cmd("swayosd-client --caps-lock"))
-
 -- Volume
 hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_SINK@ 5%+"), { description = "Volume up", repeating = true, locked = true })
 hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_SINK@ 5%-"), { description = "Volume down", repeating = true, locked = true })
 hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_SINK@ toggle"), { description = "Mute", locked = true })
-hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_SOURCE@ toggle"), { description = "Mute microphone", locked = true })
+hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { description = "Mute microphone", locked = true })
 -- Precise 1% volume
 hl.bind("ALT + XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_SINK@ 1%+"), { description = "Volume up precise",   repeating = true, locked = true })
 hl.bind("ALT + XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_SINK@ 1%-"), { description = "Volume down precise",  repeating = true, locked = true })

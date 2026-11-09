@@ -15,10 +15,25 @@ ShellRoot {
     }
 
     // OSD's
+    BatteryOSD {
+        id: batteryOSD
+    }
     VolumeOSD {
         id: volumeOSD
     }
+    MicrophoneOSD {
+        id: microphoneOSD
+    }
     KeyboardBacklightOSD {
         id: keyboardBacklightOSD
+    }
+    CapslockOSD {
+        id: capslockOSD
+    }
+    NumlockOSD {
+        id: numlockOSD
+    }
+    DisplayBrightnessOSD {
+        id: displayBrightnessOSD
     }
 }

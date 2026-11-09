@@ -63,6 +63,5 @@ Singleton {
     // OSD
     // =========================================================================
 
-    readonly property int osdSignal: volumePercent
-    readonly property bool osdSignalSecondary: muted
+    readonly property bool osdSignal: muted
 }

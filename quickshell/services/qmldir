@@ -1,7 +1,6 @@
 singleton Time 1.0 Time.qml
 singleton SystemInfo 1.0 SystemInfo.qml
 singleton BatteryService 1.0 BatteryService.qml
-singleton AudioService 1.0 AudioService.qml
 singleton BluetoothService 1.0 BluetoothService.qml
 singleton NetworkService 1.0 NetworkService.qml
 singleton AirplaneModeService 1.0 AirplaneModeService.qml
@@ -9,4 +8,10 @@ singleton WorkspaceService 1.0 WorkspaceService.qml
 singleton NotificationService 1.0 NotificationService.qml
 singleton WeatherService 1.0 WeatherService.qml
 singleton SystemSettingsService 1.0 SystemSettingsService.qml
+
+singleton AudioService 1.0 AudioService.qml
+singleton MicrophoneService 1.0 MicrophoneService.qml
+singleton Capslock 1.0 Capslock.qml
+singleton Numlock 1.0 Numlock.qml
 singleton KeyboardService 1.0 KeyboardService.qml
+singleton DisplayBrightness 1.0 DisplayBrightness.qml
