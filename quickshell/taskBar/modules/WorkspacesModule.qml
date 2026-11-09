@@ -100,7 +100,6 @@ RowLayout {
                             required property var modelData
                             required property var index
 
-                            anchors.verticalCenter: parent.verticalCenter
                             iconName: WorkspaceService.appId(modelData)
                             size: Dimensions.taskBarIconSizeLg
                             colorize: false

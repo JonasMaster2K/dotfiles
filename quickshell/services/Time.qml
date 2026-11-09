@@ -7,7 +7,7 @@ Singleton {
     id: root
 
     // Date and time
-    readonly property date date: clock.date ?? new Date()
+    readonly property var date: clock.date ?? new Date()
 
     readonly property int hours: date.getHours()
     readonly property int minutes: date.getMinutes()
